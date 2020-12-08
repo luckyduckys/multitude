@@ -1,3 +1,13 @@
+html{
+    height: 100vh;
+}
+
 body {
-    background-color: F5F5F5;
+    background-color: #F5F5F5;
+    height: 100vh;
+    font-family: 'Ubuntu';
+}
+
+#login-card {
+    border-top: 5px solid #FDC431;
 }
