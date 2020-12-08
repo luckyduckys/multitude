@@ -45,18 +45,29 @@ body {
 
 }
 
-#critical-vuln-count {
+#vuln-count-4 {
     background-color: #D43F3A;
 }
 
-#high-vuln-count {
+#vuln-count-3 {
     background-color: #EE9336;
 }
 
-#medium-vuln-count {
+#vuln-count-2 {
     background-color: #FDC431;
 }
 
-#low-vuln-count {
+#vuln-count-1 {
     background-color: #4CAE4C;
+}
+
+.top-hr {
+    border-top: 1px solid #000000;
+}
+
+.dot {
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        display: inline-block;
 }
