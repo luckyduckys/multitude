@@ -11,3 +11,7 @@ body {
 #login-card {
     border-top: 5px solid #FDC431;
 }
+
+.card-title h5 {
+    padding-top: 10px;
+}
