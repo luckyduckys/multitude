@@ -1,5 +1,24 @@
 <%- include('partials/header.ejs') -%>
 <%- include('partials/navbar.ejs') -%>
     
-    <h1>Hello World</h1>
+    <div class="container-fluid">
+        <div class="row justify-content-center vulnerability-row">
+            <div class="col-xl-2 col-md-4 col-sm-6 mx-3 my-5 vulnerability-count text-center" id="critical-vuln-count">
+                <strong><%= criticalCount %></strong>
+                <p>Critical</p>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mx-3 my-5 vulnerability-count text-center" id="high-vuln-count">
+                <strong><%= highCount %></strong>
+                <p>High</p>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mx-3 my-5 vulnerability-count text-center" id="medium-vuln-count">
+                <strong><%= mediumCount %></strong>
+                <p>Medium</p>
+            </div>
+            <div class="col-xl-2 col-md-4  col-sm-6 mx-3 my-5 vulnerability-count text-center" id="low-vuln-count">
+                <strong><%= lowCount %></strong>
+                <p>Low</p>
+            </div>
+        </div>
+    </div>
 <%- include('partials/footer.ejs') -%>

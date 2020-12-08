@@ -10,7 +10,7 @@ app.get('/login', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-    res.render('index.ejs', {});
+    res.render('index.ejs', {criticalCount: 0, highCount: 0, mediumCount: 0, lowCount: 0});
 });
 
 app.listen(3000, function() {

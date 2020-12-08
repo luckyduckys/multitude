@@ -18,8 +18,45 @@ body {
 
 .navbar {
     background-color: #647687;
+    padding: 0 1rem;
 }
 
 .navbar-dark .navbar-nav .nav-link {
     color: #FFFFFF;
+}
+
+.vulnerability-count {
+    color: #FFFFFF;
+    border-radius: 5px;
+    padding: 0;
+}
+
+.vulnerability-count strong {
+    display: block;
+    margin: 1rem 0 0 0;
+    font-weight: 900;
+    font-size: 1.5em;
+}
+
+.vulnerability-count p {
+    margin: 0.5rem 0 0 0;
+    color: #000000;
+    background-color: #ffffff;
+
+}
+
+#critical-vuln-count {
+    background-color: #D43F3A;
+}
+
+#high-vuln-count {
+    background-color: #EE9336;
+}
+
+#medium-vuln-count {
+    background-color: #FDC431;
+}
+
+#low-vuln-count {
+    background-color: #4CAE4C;
 }
