@@ -1,0 +1,47 @@
+<%- include('partials/header.ejs') -%>
+<%- include('partials/navbar.ejs') -%>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col">
+                <h2>Manage Scanners</h2>
+            </div>
+            <div class="col-offset-1 mx-5">
+                <button class="btn btn-dark">Filter</button>
+            </div>
+        </div>
+        <div class="row my-1">
+            <div class="col-12">
+                <hr class="top-hr">
+            </div>
+        </div>
+    </div>
+    <% if (scanners) { %>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col"><span class="text-nowrap">Scanner Name</span></th>
+                    <th scope="col"><span class="text-nowrap">IP Address</span></th>
+                    <th scope="col"><span class="text-nowrap">Status</span></th>
+                    <th scope="col"><span class="text-nowrap">Version</span></th>
+                    <th scope="col"><span class="text-nowrap">Type</span></th>
+                    <th scope="col"><span class="text-nowrap"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+    <% scanners.forEach(function(scanner) { %>
+                <tr>
+                    <td><span class="text-nowrap"><%= scanner.name %></span></td>
+                    <td><span class="text-nowrap"><%= scanner.ip %></span></td>
+                    <td><span class="text-nowrap"><%= scanner.status %></span></td>
+                    <td><span class="text-nowrap"><%= scanner.version %></span></td>
+                    <td><span class="text-nowrap"><%= scanner.type %></span></td>
+                    <td><span class="text-nowrap"><button class="btn btn-danger">Delete</button></span></td>
+                </tr>
+    <% }); %>
+    <% } %>
+            </tbody>
+        </table>
+    </div>
+<%- include('partials/footer.ejs') -%>

@@ -32,7 +32,7 @@
             <tbody>
     <% vulnerabilities.forEach(function(vulnerability) { %>
                 <tr>
-                    <th scope="row"><span class="text-nowrap"><span class="dot" id="vuln-count-<%=vulnerability.severity %>"></span></span></td>
+                    <td><span class="text-nowrap"><span class="dot" id="vuln-count-<%=vulnerability.severity %>"></span></span></td>
                     <td><span class="text-nowrap"><%= vulnerability.cvss %></span></td>
                     <td><span class="text-nowrap"><%= vulnerability.name %></span></td>
                     <td><span class="text-nowrap"><%= vulnerability.family %></span></td>

@@ -1,0 +1,47 @@
+<%- include('partials/header.ejs') -%>
+<%- include('partials/navbar.ejs') -%>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col">
+                <h2>Manage Users</h2>
+            </div>
+            <div class="col-offset-1 mx-5">
+                <button class="btn btn-dark">Filter</button>
+            </div>
+        </div>
+        <div class="row my-1">
+            <div class="col-12">
+                <hr class="top-hr">
+            </div>
+        </div>
+    </div>
+    <% if (users) { %>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col"><span class="text-nowrap">First Name</span></th>
+                    <th scope="col"><span class="text-nowrap">Last Name</span></th>
+                    <th scope="col"><span class="text-nowrap">Username</span></th>
+                    <th scope="col"><span class="text-nowrap">Email</span></th>
+                    <th scope="col"><span class="text-nowrap"></span></th>
+                    <th scope="col"><span class="text-nowrap"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+    <% users.forEach(function(user) { %>
+                <tr>
+                    <td><span class="text-nowrap"><%= user.firstName %></span></td>
+                    <td><span class="text-nowrap"><%= user.lastName %></span></td>
+                    <td><span class="text-nowrap"><%= user.username %></span></td>
+                    <td><span class="text-nowrap"><%= user.email %></span></td>
+                    <td><span class="text-nowrap"><button class="btn btn-warning">Reset Password</button></span></td>
+                    <td><span class="text-nowrap"><button class="btn btn-danger">Delete</button></span></td>
+                </tr>
+    <% }); %>
+    <% } %>
+            </tbody>
+        </table>
+    </div>
+<%- include('partials/footer.ejs') -%>
