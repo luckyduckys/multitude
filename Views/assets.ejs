@@ -1,0 +1,47 @@
+<%- include('partials/header.ejs') -%>
+<%- include('partials/navbar.ejs') -%>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col">
+                <h2>Assets</h2>
+            </div>
+            <div class="col-offset-1 mx-5">
+                <button class="btn btn-dark">Filter</button>
+            </div>
+        </div>
+        <div class="row my-1">
+            <div class="col-12">
+                <hr class="top-hr">
+            </div>
+        </div>
+    </div>
+    <% if (assets) { %>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col"><span class="text-nowrap"><input type="checkbox"/></span></th>
+                    <th scope="col"><span class="text-nowrap">Name</span></th>
+                    <th scope="col"><span class="text-nowrap">Address</span></th>
+                    <th scope="col"><span class="text-nowrap">OS</span></th>
+                    <th scope="col"><span class="text-nowrap">Last Scan</span></th>
+                    <th scope="col"><span class="text-nowrap">Scanner</span></th>
+                </tr>
+            </thead>
+            <tbody>
+    <% assets.forEach(function(asset) { %>
+                <tr>
+                    <th scope="row"><span class="text-nowrap"><input type="checkbox"/></span></td>
+                    <td><span class="text-nowrap"><%= asset.name %></span></td>
+                    <td><span class="text-nowrap"><%= asset.address %></span></td>
+                    <td><span class="text-nowrap"><%= asset.os %></span></td>
+                    <td><span class="text-nowrap"><%= asset.lastScan %></span></td>
+                    <td><span class="text-nowrap"><%= asset.scanner %></span></td>
+                </tr>
+    <% }); %>
+    <% } %>
+            </tbody>
+        </table>
+    </div>
+<%- include('partials/footer.ejs') -%>

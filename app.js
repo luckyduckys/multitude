@@ -25,6 +25,17 @@ app.get('/vulnerabilities', function(req, res) {
     res.render('vulnerabilities.ejs', {vulnerabilities: testData});
 });
 
+app.get('/assets', function(req, res) {
+    var testData = [{
+        name: "Test Server",
+        address: "192.168.110.16",
+        os: "Windows Server 2019",
+        lastScan: "December 4th, 2020",
+        scanner: "Home Scanner"
+    }]
+    res.render('assets.ejs', {assets: testData});
+});
+
 app.listen(3000, function() {
     console.log("Server listening on port 3000");
 });
