@@ -11,7 +11,7 @@ const scannerSchema = new mongoose.Schema({
     name: String,
 
     status: {
-        type: Integer,
+        type: Number,
         min: 0,
         max: 1,
     },
