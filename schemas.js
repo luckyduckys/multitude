@@ -2,6 +2,21 @@ require('dotenv').config();
 const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
 
+const scanSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+
+    created: Date,
+    modified: Date,
+
+    scanner: {
+        type: scannerSchema,
+        required: true
+    }
+});
+
 const scannerSchema = new mongoose.Schema({
     ip: {
         type: String,
@@ -38,8 +53,10 @@ const assetSchema = new mongoose.Schema({
 
 assetSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
 scannerSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
+scanSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
 
 module.exports = {
     assetSchema,
-    scannerSchema
+    scannerSchema,
+    scanSchema
 }
