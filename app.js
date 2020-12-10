@@ -1,10 +1,12 @@
+require('dotenv').config();
 const express = require("express");
 const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
+var dbString = 'mongodb://' + process.env.DB_HOST + '/' + process.env.DB_NAME;
 
-mongoose.connect('mongodb://' + process.env.DB_USER + ':' + process.env.DB_PWD + '@' + process.env.DB_HOST + '/' + process.env.DB_NAME, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(dbString, {useNewUrlParser: true, useUnifiedTopology: true});
 
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
