@@ -4,6 +4,7 @@ const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
+const schemas = require("./schemas.js");
 var dbString = 'mongodb://' + process.env.DB_HOST + '/' + process.env.DB_NAME;
 
 mongoose.connect(dbString, {useNewUrlParser: true, useUnifiedTopology: true});
