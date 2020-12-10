@@ -2,19 +2,23 @@ require('dotenv').config();
 const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
 
-const scanSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
+const vulnerabilitySchema = new mongoose.Schema({
+    severity: {
+        type: Number,
+        min: 0,
+        max: 1
     },
 
-    created: Date,
-    modified: Date,
+    port: {
+        type: Number,
+        min: 0,
+        max: 65535
+    },
 
-    scanner: {
-        type: scannerSchema,
-        required: true
-    }
+    protocol: String,
+    description: String,
+    pluginFamily: String,
+    pluginId: String
 });
 
 const scannerSchema = new mongoose.Schema({
@@ -37,6 +41,21 @@ const scannerSchema = new mongoose.Schema({
     password: String,
 });
 
+const scanSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+
+    created: Date,
+    modified: Date,
+
+    scanner: {
+        type: scannerSchema,
+        required: true
+    }
+});
+
 const assetSchema = new mongoose.Schema({
 
     ip: {
@@ -48,15 +67,17 @@ const assetSchema = new mongoose.Schema({
     os: String,
     lastScan: Date,
     scanner: scannerSchema,
-    //vulnerability: vulnerabilitySchema
+    vulnerability: vulnerabilitySchema
 });
 
 assetSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
 scannerSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
 scanSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
+vulnerabilitySchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
 
 module.exports = {
     assetSchema,
     scannerSchema,
-    scanSchema
+    scanSchema,
+    vulnerabilitySchema
 }
