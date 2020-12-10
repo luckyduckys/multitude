@@ -32,12 +32,13 @@ const assetSchema = new mongoose.Schema({
     fqdn: String,
     os: String,
     lastScan: Date,
-    //scanner: scannerSchema,
+    scanner: scannerSchema,
     //vulnerability: vulnerabilitySchema
 });
 
 assetSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
 scannerSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
+
 module.exports = {
     assetSchema,
     scannerSchema
