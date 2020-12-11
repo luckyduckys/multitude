@@ -1,5 +1,5 @@
 module.exports = function(app) {
-    
+
     app.get('/', function(req, res) {
         res.render('index.ejs', {criticalCount: 0, highCount: 0, mediumCount: 0, lowCount: 0});
     });
@@ -34,15 +34,7 @@ module.exports = function(app) {
     });
     
     app.get('/manage/scanners', function(req, res) {
-        var testData = [{
-            name: "Home Scanner",
-            ip: "192.168.10.110",
-            status: "Online",
-            version: "7.6.12345",
-            type: "Nessus Essentials"
-        }];
-    
-        res.render('scanners.ejs', {scanners: testData});
+        res.render('scanners.ejs');
     });
     
     app.get('/manage/users', function(req, res) {
@@ -65,5 +57,23 @@ module.exports = function(app) {
         }];
     
         res.render('scans.ejs', {scans: testData});
+    });
+
+    app.get('/api/scanners', function(req,res) {
+        var testData = [{
+                name: "Home Scanner",
+                ip: "192.168.10.110",
+                status: "Online",
+                version: "7.6.12345",
+                type: "Nessus Essentials"
+            }, {
+                name: "Home Scanner",
+                ip: "192.168.10.110",
+                status: "Online",
+                version: "7.6.12345",
+                type: "Nessus Essentials"
+            }]
+
+        res.send(testData);
     });
 }

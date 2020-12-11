@@ -63,8 +63,7 @@
             </div>
         </div>
     </div>
-    <% if (scanners) { %>
-    <div class="table-responsive">
+    <div id="scannerTable" class="table-responsive hidden">
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -76,18 +75,7 @@
                     <th scope="col"><span class="text-nowrap"></span></th>
                 </tr>
             </thead>
-            <tbody>
-    <% scanners.forEach(function(scanner) { %>
-                <tr>
-                    <td><span class="text-nowrap"><%= scanner.name %></span></td>
-                    <td><span class="text-nowrap"><%= scanner.ip %></span></td>
-                    <td><span class="text-nowrap"><%= scanner.status %></span></td>
-                    <td><span class="text-nowrap"><%= scanner.version %></span></td>
-                    <td><span class="text-nowrap"><%= scanner.type %></span></td>
-                    <td><span class="text-nowrap"><button class="btn btn-danger">Delete</button></span></td>
-                </tr>
-    <% }); %>
-    <% } %>
+            <tbody id="scannerTableBody">
             </tbody>
         </table>
     </div>
