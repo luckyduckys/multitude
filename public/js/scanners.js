@@ -1,4 +1,18 @@
-$(document).ready(function () {
+$(document).ready(populateTable());
+
+$('#createNewScannerForm').submit(function (event) {
+    event.preventDefault();
+    $.ajax({
+        url: '/api/scanners',
+        type: 'post',
+        data: $('#createNewScannerForm').serialize(),
+        success: populateTable()
+    });
+});
+
+function populateTable() {
+    $("#scannerTableBody").empty();
+
     $.get("/api/scanners", function(data, status) {
 
         if (data) {
@@ -15,4 +29,6 @@ $(document).ready(function () {
             });
         }
     });
-});
+
+    $("#addNewScanner").modal('hide');
+}
