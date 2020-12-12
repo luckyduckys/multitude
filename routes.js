@@ -78,7 +78,7 @@ module.exports = function(app) {
     });
 
     app.post('/api/scanners', function(req,res) {
-        console.log('I did it');
+        console.log(req.body);
         res.send('You did it!');
     });
 }

@@ -5,7 +5,13 @@ $('#createNewScannerForm').submit(function (event) {
     $.ajax({
         url: '/api/scanners',
         type: 'post',
-        data: $('#createNewScannerForm').serialize(),
+        data: JSON.stringify({
+            name: $('#createNewScannerForm').serializeArray()[0].value,
+            ipAddress: $('#createNewScannerForm').serializeArray()[1].value,
+            username: $('#createNewScannerForm').serializeArray()[2].value,
+            password: $('#createNewScannerForm').serializeArray()[3].value
+        }),
+        contentType: "application/json; charset=UTF-8",
         success: populateTable()
     });
 });
