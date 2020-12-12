@@ -37,4 +37,5 @@ function populateTable() {
     });
 
     $("#addNewScanner").modal('hide');
+    $("#addNewScanner input").val('');
 }
