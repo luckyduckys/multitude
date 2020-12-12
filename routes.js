@@ -1,3 +1,5 @@
+const models = require("./schemas_and_models");
+
 module.exports = function(app) {
 
     app.get('/', function(req, res) {
@@ -60,25 +62,39 @@ module.exports = function(app) {
     });
 
     app.get('/api/scanners', function(req,res) {
-        var testData = [{
-                name: "Home Scanner",
-                ip: "192.168.10.110",
-                status: "Online",
-                version: "7.6.12345",
-                type: "Nessus Essentials"
-            }, {
-                name: "Home Scanner",
-                ip: "192.168.10.110",
-                status: "Online",
-                version: "7.6.12345",
-                type: "Nessus Essentials"
-            }]
+        models.Scanner.find({}, function(err, results) {
+            if (err) {
+                console.log(err);
+            }
 
-        res.send(testData);
+            res.send(results);
+        });
     });
 
     app.post('/api/scanners', function(req,res) {
-        console.log(req.body);
-        res.send('You did it!');
+        var statusCode = 200;
+        models.Scanner.find({ip: req.body.ipAddress}, function(err, results) {
+
+            if (err) {
+                console.log(err);
+            }
+
+            else if (results) {
+                statusCode = 400;
+            }
+        });
+
+        if (statusCode === 200) {
+            var newScanner = new models.Scanner({
+                ip: req.body.ipAddress, 
+                name: req.body.name,
+                username: req.body.username,
+                password: req.body.password
+            });
+
+            newScanner.save();
+        }
+
+        res.sendStatus(statusCode);
     });
 }
