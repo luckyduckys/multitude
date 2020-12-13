@@ -97,4 +97,14 @@ module.exports = function(app) {
 
         res.sendStatus(statusCode);
     });
+
+    app.delete('/api/scanners/:id', function(req, res) {
+        models.Scanner.findByIdAndDelete(req.params.id, function (err) {
+            if (err) {
+                console.log(err);
+            }
+        });
+
+        res.sendStatus(200);
+    });
 }

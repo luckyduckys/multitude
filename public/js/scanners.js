@@ -16,6 +16,15 @@ $('#createNewScannerForm').submit(function (event) {
     });
 });
 
+$('#scannerTableBody').on('submit', '.delete-scanner', function(event) {
+    event.preventDefault();
+    $.ajax({
+        url: $(this)[0].attributes[1].nodeValue,
+        type: 'delete',
+        success: populateTable()
+    })
+});
+
 function populateTable() {
     $("#scannerTableBody").empty();
 
@@ -32,13 +41,14 @@ function populateTable() {
                     $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.status || '')+ '</span></td>');
                     $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.version || '') + '</span></td>');
                     $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.type || '') + '</span></td>');
-                    $("#scannerTableBody").append('<td><span class="text-nowrap"><button class="btn btn-danger">Delete</button></span></td>');
+                    $("#scannerTableBody").append('<td><span class="text-nowrap"><form class="delete-scanner" action="/api/scanners/' + scanner._id + 
+                        '" method="POST"><button type="submit" class="btn btn-danger">Delete</button></form></span></td>');
                     $("#scannerTableBody").append('</tr>');
                 });
             }
         });
     },
-    500);
+    1000);
 
     $("#addNewScanner").modal('hide');
     $("#addNewScanner input").val('');
