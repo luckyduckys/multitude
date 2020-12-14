@@ -11,7 +11,7 @@ $('#createNewScannerForm').submit(function (event) {
             username: $('#createNewScannerForm').serializeArray()[2].value,
             password: $('#createNewScannerForm').serializeArray()[3].value
         }),
-        contentType: "application/json; charset=UTF-8",
+        contentType: "application/json",
         success: populateTable()
     });
 });

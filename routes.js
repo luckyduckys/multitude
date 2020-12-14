@@ -67,6 +67,7 @@ module.exports = function(app) {
                 console.log(err);
             }
 
+            res.set('Content-Type', 'application/json');
             res.send(results);
         });
     });
