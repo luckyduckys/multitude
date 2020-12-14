@@ -27,6 +27,8 @@ $('#scannerTableBody').on('submit', '.delete-scanner', function(event) {
 
 function populateTable() {
     $("#scannerTableBody").empty();
+    $("#scannerTable").addClass("hidden");
+    $(".loadingGif").removeClass("hidden");
 
     setTimeout(function() {
         $.get("/api/scanners", function(data, status) {
