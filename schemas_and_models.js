@@ -29,12 +29,7 @@ const scannerSchema = new mongoose.Schema({
 
     name: String,
 
-    status: {
-        type: Number,
-        min: 0,
-        max: 1,
-    },
-
+    status: String,
     version: String,
     type: String,
     username: String,

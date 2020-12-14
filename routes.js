@@ -11,7 +11,7 @@ module.exports = function(app) {
     });
     
     app.get('/vulnerabilities', function(req, res) {
-        var testData = [{
+        let testData = [{
             severity: 4,
             cvss: 10.0,
             name: "Adobe Reader Unsupported Version",
@@ -24,7 +24,7 @@ module.exports = function(app) {
     });
     
     app.get('/assets', function(req, res) {
-        var testData = [{
+        let testData = [{
             name: "Test Server",
             address: "192.168.110.16",
             os: "Windows Server 2019",
@@ -40,7 +40,7 @@ module.exports = function(app) {
     });
     
     app.get('/manage/users', function(req, res) {
-        var testData = [{
+        let testData = [{
             firstName: "Billy Bob",
             lastName: "Thorton",
             username: "bthorton",
@@ -51,7 +51,7 @@ module.exports = function(app) {
     });
     
     app.get('/manage/scans', function(req,res) {
-        var testData = [{
+        let testData = [{
             name: "Home Network Scan",
             scanner: "Home Scanner",
             created: "December 4th, 2020",
@@ -73,7 +73,7 @@ module.exports = function(app) {
     });
 
     app.post('/api/scanners', function(req,res) {
-        var statusCode = 200;
+        let statusCode = 200;
         models.Scanner.find({ip: req.body.ipAddress}, function(err, results) {
 
             if (err) {
@@ -86,7 +86,7 @@ module.exports = function(app) {
         });
 
         if (statusCode === 200) {
-            var newScanner = new models.Scanner({
+            let newScanner = new models.Scanner({
                 ip: req.body.ipAddress, 
                 name: req.body.name,
                 username: req.body.username,

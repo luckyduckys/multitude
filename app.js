@@ -6,7 +6,8 @@ const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
 const bodyParser = require("body-parser");
 const cron = require("node-cron");
-const schemas = require("./schemas_and_models.js");
+const models = require("./schemas_and_models.js");
+const scannerOps = require("./scanner_operations.js");
 
 var dbString = 'mongodb://' + process.env.DB_HOST + '/' + process.env.DB_NAME;
 
@@ -21,4 +22,14 @@ require("./routes.js")(app);
 
 app.listen(3000, function() {
     console.log("Server listening on port 3000");
+});
+
+models.Scanner.find({}, function(err, scanners) {
+    if (err) {
+        console.log(err);
+    }
+
+    scanners.forEach(function(scanner) {
+        scannerOps.getStatus(scanner);
+    });
 });
