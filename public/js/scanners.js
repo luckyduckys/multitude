@@ -19,7 +19,7 @@ $('#createNewScannerForm').submit(function (event) {
 $('#scannerTableBody').on('submit', '.delete-scanner', function(event) {
     event.preventDefault();
     $.ajax({
-        url: $(this)[0].attributes[1].nodeValue,
+        url: $(this).attr('action'),
         type: 'delete',
         success: populateTable()
     })
