@@ -1,33 +1,42 @@
 const https = require('https');
+const { resolve } = require('path');
 
 function getStatus(scanner) {
+    return new Promise(function (resolve, reject) {
+        var jsonified = {};
+        let options = {
+            host: scanner.ip,
+            port: 8834,
+            path: '/server/status',
+            method: 'GET',
+            rejectUnauthorized: false
+        }
 
-    let options = {
-        host: scanner.ip,
-        port: 8834,
-        path: '/server/status',
-        method: 'GET',
-        rejectUnauthorized: false
-    }
+        const req = https.request(options, function(res) {
+            let dataChunks = '';
 
-    const req = https.request(options, function(res) {
-        let dataChunks = '';
+            res.on('data', function(chunk) {
+                dataChunks += chunk;
+            });
 
-        res.on('data', function(chunk) {
-            dataChunks += chunk;
+            res.on('end', function () {
+                resolve(JSON.parse(dataChunks));
+            });
+
+            res.on('error', function () {
+                reject({status: 'offline'});
+            });
         });
 
-        res.on('end', function() {
-            let jsonified = JSON.parse(dataChunks);
-            console.log(jsonified);
+        req.on('error', function() {
+            reject({status: 'offline'});
         });
-    });
 
-    req.on('error', function(err) {
-        console.log(err);
-    });
+        req.end();
 
-    req.end()
+    }).catch(function(err) {
+        return (err);
+    });
 }
 
 module.exports = {

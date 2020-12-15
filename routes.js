@@ -1,4 +1,5 @@
 const models = require("./schemas_and_models");
+const scannerOps = require("./scanner_operations");
 
 module.exports = function(app) {
 
@@ -74,6 +75,8 @@ module.exports = function(app) {
 
     app.post('/api/scanners', function(req,res) {
         let statusCode = 200;
+        let scannerStatus = '';
+
         models.Scanner.find({ip: req.body.ipAddress}, function(err, results) {
 
             if (err) {
@@ -92,14 +95,14 @@ module.exports = function(app) {
                 username: req.body.username,
                 password: req.body.password
             });
-
+            
             newScanner.save();
         }
 
         res.sendStatus(statusCode);
     });
 
-    app.delete('/api/scanners/:id', function(req, res) {
+    app.delete('/api/scanners/:id', async function(req, res) {
         models.Scanner.findByIdAndDelete(req.params.id, function (err) {
             if (err) {
                 console.log(err);
