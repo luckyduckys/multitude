@@ -13,7 +13,7 @@ cron.schedule('*/30 * * * * *', function () {
         for (let i = 0; i < scanners.length; i++) {
             let scannerStatus = {};
 
-            scannerStatus = await scannerOps.getStatus(scanners[i]);
+            scannerStatus = await scannerOps.scannerGetRequest(scanners[i], '/server/status');
 
             models.Scanner.updateOne({_id: scanners[i]._id}, {status: scannerStatus.status}, function(err, results) {
                 if (err) {
