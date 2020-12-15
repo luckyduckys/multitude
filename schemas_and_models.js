@@ -63,11 +63,6 @@ const assetSchema = new mongoose.Schema({
     vulnerability: vulnerabilitySchema
 });
 
-// assetSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
-// scannerSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
-// scanSchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
-// vulnerabilitySchema.plugin(encrypt, { encryptionKey: process.env.ENC_KEY, signingKey: process.env.SIG_KEY });
-
 const Vulnerability = new mongoose.model('vulnerability', vulnerabilitySchema, 'vulnerabilities');
 const Scanner = new mongoose.model('scanner', scannerSchema);
 const Scan = new mongoose.model('scan', scanSchema);
