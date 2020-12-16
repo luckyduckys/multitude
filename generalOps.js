@@ -1,19 +1,23 @@
 const https = require('https');
 
-function getRequest(scanner, path, token=null) {
+function httpRequest(scanner, path, method, data = null, token=null) {
     return new Promise(function (resolve, reject) {
         let options = {
             host: scanner.ip,
             port: 8834,
             path: path,
-            method: 'GET',
-            rejectUnauthorized: false
+            method: method,
+            rejectUnauthorized: false,
+            headers: {}
         }
 
         if (token) {
-            options.headers = {
-                'X-Cookie': 'token=' + token 
-            }
+            options.headers['X-Cookie'] = 'token=' + token;
+        }
+
+        if (data) {
+            options.headers['Content-Type'] = 'application/json';
+            options.headers['Content-Length'] = JSON.stringify(data).length;
         }
 
         const req = https.request(options, function(res) {
@@ -36,6 +40,10 @@ function getRequest(scanner, path, token=null) {
             reject({status: 'offline'});
         });
 
+        if (method === 'POST') {
+            req.write(JSON.stringify(data));
+        }
+
         req.end();
 
     }).catch(function(err) {
@@ -44,5 +52,5 @@ function getRequest(scanner, path, token=null) {
 }
 
 module.exports = {
-    getRequest
+    httpRequest
 }

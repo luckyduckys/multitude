@@ -14,7 +14,7 @@ cron.schedule('*/30 * * * * *', function () {
         for (let i = 0; i < scanners.length; i++) {
             let scannerStatus = {};
 
-            scannerStatus = await generalOps.getRequest(scanners[i], '/server/status');
+            scannerStatus = await generalOps.httpRequest(scanners[i], '/server/status', 'GET');
 
             models.Scanner.updateOne({_id: scanners[i]._id}, {status: scannerStatus.status}, function(err, results) {
                 if (err) {
@@ -26,7 +26,7 @@ cron.schedule('*/30 * * * * *', function () {
 });
 
 //Get Server properties every hour.
-cron.schedule('* * */1 * * *', function() {
+cron.schedule('0 * * * *', function() {
     models.Scanner.find({}, async function(err, scanners) {
 
         if (err) {
@@ -40,7 +40,7 @@ cron.schedule('* * */1 * * *', function() {
                 continue;
             }
 
-            scannerProperties = await generalOps.getRequest(scanners[i], '/server/properties');
+            scannerProperties = await generalOps.httpRequest(scanners[i], '/server/properties', 'GET');
             
             if (!scannerProperties.hasOwnProperty('status')) {
                 models.Scanner.updateOne({_id: scanners[i]._id}, {version: scannerProperties.server_version, type: scannerProperties.nessus_type}, function(err, results) {
@@ -54,7 +54,7 @@ cron.schedule('* * */1 * * *', function() {
 });
 
 //Get Scans every hour
-cron.schedule('* * */1 * * *', function() {
+cron.schedule('0 * * * *', function() {
     models.Scanner.find({}, async function(err, scanners) {
         if (err) {
             console.log(err);
@@ -64,14 +64,22 @@ cron.schedule('* * */1 * * *', function() {
             let scans = {};
             let cookie = {};
 
-            if (scanners[i].status == 'offline') {
+            if (scanners[i].status === 'offline') {
                 continue;
             }
 
-            cookie = await scannerOps.scannerLogin(scanners[i]);
+            try {
+                cookie = await scannerOps.scannerLogin(scanners[i]);
+                console.log(cookie);
+            }
+
+            catch(error) {
+                console.log(error);
+                continue;
+            }
 
             if (!cookie.hasOwnProperty('status')) {
-                scansArr = await generalOps.getRequest(scanners[i], '/scans', cookie.token);
+                let scansArr = await generalOps.getRequest(scanners[i], '/scans', cookie.token);
                 
                 if (!scansArr.hasOwnProperty('status')) {
                     

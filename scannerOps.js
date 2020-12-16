@@ -1,47 +1,21 @@
-const https = require('https');
+const generalOps = require("./generalOps");
 
-function scannerLogin(scanner) {
-    return new Promise(function (resolve, reject) {
-        let credentials = JSON.stringify({
-            username: scanner.username,
-            password: scanner.password
-        });
+async function scannerLogin(scanner) {
+    let cookie = await generalOps.httpRequest(scanner, '/session', "DELETE", {username: scanner.username, password: scanner.password});
+    
+    if(cookie.hasOwnProperty('status')) {
+        throw new Error('Scanner is offline');
+    }
 
-        let options = {
-            host: scanner.ip,
-            port: 8834,
-            path: '/session',
-            method: 'POST',
-            rejectUnauthorized: false,
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': credentials.length
-            }
-        }
+    return cookie;
+}
 
-        const req = https.request(options, function(res) {
-            let dataChunks = '';
+async function scannerDestroySession(scanner, token) {
+    let result = await generalOps.httpRequest(scanner, '/session', 'DELETE', token=token);
 
-            res.on('data', function(chunk) {
-                dataChunks += chunk;
-            });
-
-            res.on('end', function() {
-                resolve(JSON.parse(dataChunks));
-            });
-
-            res.on('error', function(err) {
-                reject(err);
-            });
-        });
-
-        req.on('error', function(err) {
-            reject(err);
-        });
-
-        req.write(credentials);
-        req.end();
-    });
+    if (result.hasOwnProperty('status')) {
+        throw new Error('Scanner is offline');
+    }
 }
 
 module.exports = {
