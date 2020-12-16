@@ -42,6 +42,7 @@ const scanSchema = new mongoose.Schema({
 
     created: Date,
     modified: Date,
+    nessus_id: Number,
 
     scanner: {
         type: scannerSchema,

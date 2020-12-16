@@ -1,5 +1,5 @@
 const models = require("./schemas_and_models");
-const scannerOps = require("./scanner_operations");
+const scannerOps = require("./scannerOps");
 
 module.exports = function(app) {
 
