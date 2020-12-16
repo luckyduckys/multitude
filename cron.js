@@ -95,7 +95,7 @@ cron.schedule('* * */1 * * *', function() {
             }
         }
     });
-})
+});
 
 module.exports = {
     cron

@@ -7,7 +7,51 @@
                 <h2>Manage Scans</h2>
             </div>
             <div class="col-offset-1 mx-5">
-                <button class="btn btn-dark">Filter</button>
+                <button class="btn btn-dark" data-toggle="modal" data-target="#filterScans">Filter</button>
+                <div class="modal fade" id="filterScans" tabindex="-1" role="dialog" aria-labelledby="filterScansTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="filterScansTitle">Filter Scans</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="filterScansForm" action="/api/scans" method="POST">
+                                <div class="modal-body">
+                                    <div class="form-row">
+                                        <div class="form-group col">
+                                            <label for="name">Name</label>
+                                            <input type="text" name="name" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col">
+                                            <label for="ipAddress">IP Address</label>
+                                            <input type="text" name="ipAddress" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-6">
+                                            <label for="username">Username</label>
+                                            <input type="text" name="username" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-6">
+                                            <label for="password">Password</label>
+                                            <input type="password" name="password" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-success">Create new</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row my-1">
@@ -16,8 +60,10 @@
             </div>
         </div>
     </div>
-    <% if (scans) { %>
-    <div class="table-responsive">
+    <div class="loadingGif">
+        <img src="/static/images/ajax-loader.gif"/>
+    </div>
+    <div id="scansTable" class="table-responsive">
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -29,18 +75,7 @@
                     <th scope="col"><span class="text-nowrap"></span></th>
                 </tr>
             </thead>
-            <tbody>
-    <% scans.forEach(function(scan) { %>
-                <tr>
-                    <td><span class="text-nowrap"><%= scan.name %></span></td>
-                    <td><span class="text-nowrap"><%= scan.scanner %></span></td>
-                    <td><span class="text-nowrap"><%= scan.created %></span></td>
-                    <td><span class="text-nowrap"><%= scan.modified %></span></td>
-                    <td><span class="text-nowrap"><button class="btn btn-warning">Modify</button></span></td>
-                    <td><span class="text-nowrap"><button class="btn btn-danger">Delete</button></span></td>
-                </tr>
-    <% }); %>
-    <% } %>
+            <tbody id="scansTableBody">
             </tbody>
         </table>
     </div>

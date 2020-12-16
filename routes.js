@@ -1,5 +1,4 @@
 const models = require("./schemas_and_models");
-const scannerOps = require("./scannerOps");
 
 module.exports = function(app) {
 
@@ -37,7 +36,7 @@ module.exports = function(app) {
     });
     
     app.get('/manage/scanners', function(req, res) {
-        res.render('scanners.ejs');
+        res.render('scanners.ejs', {title: 'scanners'});
     });
     
     app.get('/manage/users', function(req, res) {
@@ -52,14 +51,7 @@ module.exports = function(app) {
     });
     
     app.get('/manage/scans', function(req,res) {
-        let testData = [{
-            name: "Home Network Scan",
-            scanner: "Home Scanner",
-            created: "December 4th, 2020",
-            modified: "December 4th, 2020"
-        }];
-    
-        res.render('scans.ejs', {scans: testData});
+        res.render('scans.ejs', {title: 'scans'});
     });
 
     app.get('/api/scanners', function(req,res) {
@@ -102,7 +94,7 @@ module.exports = function(app) {
         res.sendStatus(statusCode);
     });
 
-    app.delete('/api/scanners/:id', async function(req, res) {
+    app.delete('/api/scanners/:id', function(req, res) {
         models.Scanner.findByIdAndDelete(req.params.id, function (err) {
             if (err) {
                 console.log(err);
@@ -110,5 +102,16 @@ module.exports = function(app) {
         });
 
         res.sendStatus(200);
+    });
+
+    app.get('/api/scans', function(req, res) {
+        models.Scan.find({}, function(err, results) {
+            if (err) {
+                console.log(err);
+            }
+
+            res.set('Content-Type', 'application/json');
+            res.send(results);
+        });
     });
 }
