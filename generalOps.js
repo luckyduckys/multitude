@@ -1,6 +1,6 @@
 const https = require('https');
 
-function httpRequest(scanner, path, method, data = null, token=null) {
+function httpRequest(scanner, path, method, data = null, token = null) {
     return new Promise(function (resolve, reject) {
         let options = {
             host: scanner.ip,
@@ -28,7 +28,13 @@ function httpRequest(scanner, path, method, data = null, token=null) {
             });
 
             res.on('end', function () {
-                resolve(JSON.parse(dataChunks));
+                if (dataChunks != '') {
+                    resolve(JSON.parse(dataChunks));
+                }
+
+                else {
+                    resolve({success: 'success'});
+                }
             });
 
             res.on('error', function () {

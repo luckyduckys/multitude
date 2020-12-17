@@ -40,7 +40,13 @@ cron.schedule('0 * * * *', function() {
                 continue;
             }
 
-            scannerProperties = await generalOps.httpRequest(scanners[i], '/server/properties', 'GET');
+            try {
+                scannerProperties = await generalOps.httpRequest(scanners[i], '/server/properties', 'GET');
+            }
+
+            catch {
+                continue;
+            }
             
             if (!scannerProperties.hasOwnProperty('status')) {
                 models.Scanner.updateOne({_id: scanners[i]._id}, {version: scannerProperties.server_version, type: scannerProperties.nessus_type}, function(err, results) {
@@ -54,14 +60,13 @@ cron.schedule('0 * * * *', function() {
 });
 
 //Get Scans every hour
-cron.schedule('0 * * * *', function() {
+cron.schedule('*/7 * * * * *', function() {
     models.Scanner.find({}, async function(err, scanners) {
         if (err) {
             console.log(err);
         }
 
         for (let i = 0; i < scanners.length; i++) {
-            let scans = {};
             let cookie = {};
 
             if (scanners[i].status === 'offline') {
@@ -70,19 +75,24 @@ cron.schedule('0 * * * *', function() {
 
             try {
                 cookie = await scannerOps.scannerLogin(scanners[i]);
-                console.log(cookie);
             }
 
             catch(error) {
-                console.log(error);
                 continue;
             }
 
             if (!cookie.hasOwnProperty('status')) {
-                let scansArr = await generalOps.getRequest(scanners[i], '/scans', cookie.token);
+
+                try {
+                    let scansArr = await generalOps.httpRequest(scanners[i], '/scans', 'GET', null, cookie.token);
+                }
+
+                catch(error) {
+                    continue;
+                }
                 
                 if (!scansArr.hasOwnProperty('status')) {
-                    
+
                     for (let j = 0; j < scansArr.scans.length; j++) {
                         
                         let newScan = {
@@ -100,6 +110,8 @@ cron.schedule('0 * * * *', function() {
                         });
                     }
                 }
+
+                scannerOps.scannerDestroySession(scanners[i], cookie);
             }
         }
     });
