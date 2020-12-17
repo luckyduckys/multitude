@@ -14,7 +14,14 @@ cron.schedule('*/30 * * * * *', function () {
         for (let i = 0; i < scanners.length; i++) {
             let scannerStatus = {};
 
-            scannerStatus = await generalOps.httpRequest(scanners[i], '/server/status', 'GET');
+            try {
+                scannerStatus = await generalOps.httpRequest(scanners[i], '/server/status', 'GET');
+            }
+            catch (err) {
+                scannerStatus = {
+                    status: 'offline'
+                }
+            }
 
             models.Scanner.updateOne({_id: scanners[i]._id}, {status: scannerStatus.status}, function(err, results) {
                 if (err) {
@@ -68,6 +75,7 @@ cron.schedule('*/7 * * * * *', function() {
 
         for (let i = 0; i < scanners.length; i++) {
             let cookie = {};
+            let scans = {};
 
             if (scanners[i].status === 'offline') {
                 continue;
@@ -75,43 +83,37 @@ cron.schedule('*/7 * * * * *', function() {
 
             try {
                 cookie = await scannerOps.scannerLogin(scanners[i]);
+                scans = await generalOps.httpRequest(scanners[i], '/scans', 'GET', null, cookie.token);
             }
 
             catch(error) {
                 continue;
             }
 
-            if (!cookie.hasOwnProperty('status')) {
-
-                try {
-                    let scansArr = await generalOps.httpRequest(scanners[i], '/scans', 'GET', null, cookie.token);
-                }
-
-                catch(error) {
-                    continue;
-                }
+            for (let j = 0; j < scans.scans.length; j++) {
                 
-                if (!scansArr.hasOwnProperty('status')) {
-
-                    for (let j = 0; j < scansArr.scans.length; j++) {
-                        
-                        let newScan = {
-                            name: scansArr.scans[j].name, 
-                            created: new Date(scansArr.scans[j].creation_date * 1000),
-                            modified: new Date(scansArr.scans[j].last_modification_date * 1000),
-                            nessus_id: scansArr.scans[j].id,
-                            scanner: scanners[i]
-                        }
-
-                        models.Scan.findOneAndUpdate({nessus_id: scansArr.scans[j].id}, newScan, {upsert: true, new: true}, function (err, results) {
-                            if (err) {
-                                console.log(err);
-                            }
-                        });
-                    }
+                let newScan = {
+                    name: scans.scans[j].name, 
+                    created: new Date(scans.scans[j].creation_date * 1000),
+                    modified: new Date(scans.scans[j].last_modification_date * 1000),
+                    nessus_id: scans.scans[j].id,
+                    scanner: scanners[i]
                 }
 
+                models.Scan.findOneAndUpdate({nessus_id: scans.scans[j].id}, newScan, {upsert: true, new: true}, function (err, results) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            }
+
+            try {
                 scannerOps.scannerDestroySession(scanners[i], cookie);
+            }
+
+            catch (err){
+                console.log("cookie destroy fail");
+                continue;
             }
         }
     });

@@ -37,13 +37,13 @@ function httpRequest(scanner, path, method, data = null, token = null) {
                 }
             });
 
-            res.on('error', function () {
-                reject({status: 'offline'});
+            res.on('error', function (err) {
+                reject(err);
             });
         });
 
-        req.on('error', function() {
-            reject({status: 'offline'});
+        req.on('error', function(err) {
+            reject(err);
         });
 
         if (method === 'POST') {
@@ -52,8 +52,6 @@ function httpRequest(scanner, path, method, data = null, token = null) {
 
         req.end();
 
-    }).catch(function(err) {
-        return (err);
     });
 }
 

@@ -1,10 +1,14 @@
 const generalOps = require("./generalOps");
 
 async function scannerLogin(scanner) {
-    let cookie = await generalOps.httpRequest(scanner, '/session', "POST", {username: scanner.username, password: scanner.password});
-    
-    if(cookie.hasOwnProperty('status')) {
-        throw new Error('Scanner is offline');
+    let cookie = {};
+
+    try {
+        cookie = await generalOps.httpRequest(scanner, '/session', "POST", {username: scanner.username, password: scanner.password});
+    }
+
+    catch (err) {
+        throw (err);
     }
 
     return cookie;
@@ -13,11 +17,13 @@ async function scannerLogin(scanner) {
 async function scannerDestroySession(scanner, cookie) {
     let result = await generalOps.httpRequest(scanner, '/session', 'DELETE', null, cookie.token);
 
-    if (result.hasOwnProperty('status')) {
-        throw new Error('Scanner is offline');
+    try {
+        result = await generalOps.httpRequest(scanner, '/session', 'DELETE', null, cookie.token);
     }
 
-    console.log("Destroyed Session");
+    catch (err) {
+        throw (err);
+    }
 }
 
 module.exports = {
