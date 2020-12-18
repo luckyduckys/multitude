@@ -50,7 +50,7 @@ const scanSchema = new mongoose.Schema({
     }
 });
 
-const assetSchema = new mongoose.Schema({
+const hostSchema = new mongoose.Schema({
 
     ip: {
         type: String,
@@ -60,18 +60,19 @@ const assetSchema = new mongoose.Schema({
     fqdn: String,
     os: String,
     lastScan: Date,
-    scanner: scannerSchema,
+    nessus_id: Number,
+    scan: scanSchema,
     vulnerability: vulnerabilitySchema
 });
 
 const Vulnerability = new mongoose.model('vulnerability', vulnerabilitySchema, 'vulnerabilities');
 const Scanner = new mongoose.model('scanner', scannerSchema);
 const Scan = new mongoose.model('scan', scanSchema);
-const Asset = new mongoose.model('asset', assetSchema);
+const Host = new mongoose.model('host', hostSchema);
 
 module.exports = {
     Vulnerability,
     Scanner,
     Scan,
-    Asset
+    Host
 }

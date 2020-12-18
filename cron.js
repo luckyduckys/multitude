@@ -67,7 +67,7 @@ cron.schedule('0 * * * *', function() {
 });
 
 //Get Scans every hour
-cron.schedule('*/7 * * * * *', function() {
+cron.schedule('0 * * * *', function() {
     models.Scanner.find({}, async function(err, scanners) {
         if (err) {
             console.log(err);
