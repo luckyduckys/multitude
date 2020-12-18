@@ -42,10 +42,11 @@ const scanSchema = new mongoose.Schema({
 
     created: Date,
     modified: Date,
+    last_imported: Date,
     nessus_id: Number,
 
-    scanner: {
-        type: scannerSchema,
+    scanner_id: {
+        type: String,
         required: true
     }
 });
@@ -61,8 +62,8 @@ const hostSchema = new mongoose.Schema({
     os: String,
     lastScan: Date,
     nessus_id: Number,
-    scan: scanSchema,
-    vulnerability: vulnerabilitySchema
+    scan: String,
+    vulnerability_id: [String]
 });
 
 const Vulnerability = new mongoose.model('vulnerability', vulnerabilitySchema, 'vulnerabilities');

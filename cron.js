@@ -97,7 +97,7 @@ cron.schedule('0 * * * *', function() {
                     created: new Date(scans.scans[j].creation_date * 1000),
                     modified: new Date(scans.scans[j].last_modification_date * 1000),
                     nessus_id: scans.scans[j].id,
-                    scanner: scanners[i]
+                    scanner_id: scanners[i]._id
                 }
 
                 models.Scan.findOneAndUpdate({nessus_id: scans.scans[j].id}, newScan, {upsert: true, new: true}, function (err, results) {
@@ -115,6 +115,18 @@ cron.schedule('0 * * * *', function() {
                 console.log("cookie destroy fail");
                 continue;
             }
+        }
+    });
+});
+
+cron.schedule('0 * * * *', function() {
+    models.Scan.find({}, async function(err, scans) {
+        if (err) {
+            console.log(err);
+        }
+
+        for (let i = 0; i < scans.length; i++) {
+
         }
     });
 });
