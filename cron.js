@@ -97,7 +97,8 @@ cron.schedule('0 * * * *', function() {
                     created: new Date(scans.scans[j].creation_date * 1000),
                     modified: new Date(scans.scans[j].last_modification_date * 1000),
                     nessus_id: scans.scans[j].id,
-                    scanner_id: scanners[i]._id
+                    scanner_id: scanners[i]._id,
+                    scanner_name: scanners[i].name
                 }
 
                 models.Scan.findOneAndUpdate({nessus_id: scans.scans[j].id}, newScan, {upsert: true, new: true}, function (err, results) {
@@ -108,7 +109,7 @@ cron.schedule('0 * * * *', function() {
             }
 
             try {
-                scannerOps.scannerDestroySession(scanners[i], cookie);
+                await scannerOps.scannerDestroySession(scanners[i], cookie);
             }
 
             catch (err){
@@ -119,14 +120,64 @@ cron.schedule('0 * * * *', function() {
     });
 });
 
-cron.schedule('0 * * * *', function() {
-    models.Scan.find({}, async function(err, scans) {
+cron.schedule('*/7 * * * * *', function() {
+    let scanDetails = {};
+    let scans = [];
+    let hostDetails = {};
+
+    models.Scanner.find({status: 'ready'}, async function(err, scanners) {
+
         if (err) {
             console.log(err);
         }
 
-        for (let i = 0; i < scans.length; i++) {
+        for (let i = 0; i < scanners.length; i++) {
 
+            //Check if scanner is online and get login token
+            if (scanners[i].status != 'ready') {
+                continue;
+            }
+            
+            try {
+                var cookie = await scannerOps.scannerLogin(scanners[i]);
+            }
+
+            catch(error) {
+                continue;
+            }
+
+            //Get all scan host details for scanner
+            scans = await models.Scan.find({scanner_id: scanners[i]._id}).exec();
+
+            for (let j = 0; j < scans.length; j++) {
+                let scanPath = '/scans/' + scans[j].nessus_id;
+
+                try {
+                    scanDetails = await generalOps.httpRequest(scanners[i], scanPath, 'GET', null, cookie.token);
+                }
+
+                catch {
+                    continue;
+                }
+
+                for (let k = 0; k < scanDetails.hosts.length; k++) {
+
+                    let hostPath = scanPath + '/hosts/' + scanDetails.hosts[k].host_id;
+                    hostDetails = await generalOps.httpRequest(scanners[i], hostPath, 'GET', null, cookie.token);
+                    console.log(hostDetails);
+                }
+
+                
+            }
+
+            try {
+                await scannerOps.scannerDestroySession(scanners[i], cookie);
+            }
+
+            catch (err){
+                console.log("cookie destroy fail");
+                continue;
+            }
         }
     });
 });

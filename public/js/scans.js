@@ -14,7 +14,7 @@ function populateTable() {
                 data.forEach(function (scan) {
                     $("#scansTableBody").append('<tr>');
                     $("#scansTableBody").append('<td><span class="text-nowrap">' + scan.name + '</span></td>');
-                    $("#scansTableBody").append('<td><span class="text-nowrap">' + scan.scanner.name + '</span></td>');
+                    $("#scansTableBody").append('<td><span class="text-nowrap">' + scan.scanner_name + '</span></td>');
                     $("#scansTableBody").append('<td><span class="text-nowrap">' + new Date(scan.created).toLocaleString() + '</span></td>');
                     $("#scansTableBody").append('<td><span class="text-nowrap">' + new Date(scan.modified).toLocaleString() + '</span></td>');
                     $("#scansTableBody").append('<td><span class="text-nowrap"><form class="delete-scan" action="/api/scans/' + scan._id + 

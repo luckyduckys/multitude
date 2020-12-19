@@ -24,6 +24,8 @@ async function scannerDestroySession(scanner, cookie) {
     catch (err) {
         throw (err);
     }
+
+    return true;
 }
 
 module.exports = {

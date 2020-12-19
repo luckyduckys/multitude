@@ -17,7 +17,12 @@ const vulnerabilitySchema = new mongoose.Schema({
     protocol: String,
     description: String,
     pluginFamily: String,
-    pluginId: String
+    pluginId: Number,
+    cvss: {
+        type: Number,
+        min: [0],
+        max: [10]
+    }
 });
 
 const scannerSchema = new mongoose.Schema({
@@ -44,7 +49,7 @@ const scanSchema = new mongoose.Schema({
     modified: Date,
     last_imported: Date,
     nessus_id: Number,
-
+    scanner_name: String,
     scanner_id: {
         type: String,
         required: true
@@ -62,7 +67,7 @@ const hostSchema = new mongoose.Schema({
     os: String,
     lastScan: Date,
     nessus_id: Number,
-    scan: String,
+    scan_id: String,
     vulnerability_id: [String]
 });
 
