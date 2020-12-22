@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const generalOps = require('./generalOps');
 const scannerOps = require('./scannerOps');
+const hostOps = require('./hostOps');
 const models = require("./schemas_and_models");
 
 //Sync server status every 30 seconds.
@@ -124,6 +125,7 @@ cron.schedule('*/7 * * * * *', function() {
     let scanDetails = {};
     let scans = [];
     let hostDetails = {};
+    let foundHost = {};
 
     models.Scanner.find({status: 'ready'}, async function(err, scanners) {
 
@@ -164,10 +166,16 @@ cron.schedule('*/7 * * * * *', function() {
 
                     let hostPath = scanPath + '/hosts/' + scanDetails.hosts[k].host_id;
                     hostDetails = await generalOps.httpRequest(scanners[i], hostPath, 'GET', null, cookie.token);
-                    console.log(hostDetails);
-                }
+                    foundHost = await hostOps.doesHostExist(hostDetails.info);
 
-                
+                    if (foundHost) {
+                        
+                    }
+
+                    else {
+                        hostOps.createHost(hostDetails.info, scans[j].nessus_id, scanDetails.hosts[k].host_id);
+                    }
+                }                
             }
 
             try {

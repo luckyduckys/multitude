@@ -63,6 +63,8 @@ const hostSchema = new mongoose.Schema({
         required: true
     },
 
+    mac_address: String,
+    netbios_name: String,
     fqdn: String,
     os: String,
     lastScan: Date,
