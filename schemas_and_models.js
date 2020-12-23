@@ -5,23 +5,21 @@ const vulnerabilitySchema = new mongoose.Schema({
     severity: {
         type: Number,
         min: 0,
-        max: 1
+        max: 4
     },
 
-    port: {
-        type: Number,
-        min: 0,
-        max: 65535
-    },
-
-    protocol: String,
+    ports: [String],
+    status: String,
+    resolved: Date,
+    added: Date,
     description: String,
     pluginFamily: String,
     pluginId: Number,
-    cvss: {
-        type: Number,
-        min: [0],
-        max: [10]
+    synopsis: String,
+    solution: String,
+    host_id: {
+        type: String,
+        required: true
     }
 });
 
@@ -70,7 +68,6 @@ const hostSchema = new mongoose.Schema({
     lastScan: Date,
     nessus_id: Number,
     scan_id: String,
-    vulnerability_id: [String]
 });
 
 const Vulnerability = new mongoose.model('vulnerability', vulnerabilitySchema, 'vulnerabilities');

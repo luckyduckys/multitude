@@ -2,7 +2,8 @@ const cron = require('node-cron');
 const generalOps = require('./generalOps');
 const scannerOps = require('./scannerOps');
 const hostOps = require('./hostOps');
-const models = require("./schemas_and_models");
+const vulnOps = require('./vulnOps');
+const models = require('./schemas_and_models');
 
 //Sync server status every 30 seconds.
 cron.schedule('*/30 * * * * *', function () {
@@ -126,6 +127,9 @@ cron.schedule('*/7 * * * * *', function() {
     let scans = [];
     let hostDetails = {};
     let foundHost = {};
+    let vulnDetails = {};
+    let curHost = {};
+    let curVuln = {};
 
     models.Scanner.find({status: 'ready'}, async function(err, scanners) {
 
@@ -162,6 +166,7 @@ cron.schedule('*/7 * * * * *', function() {
                     continue;
                 }
 
+                //Update or create all hosts
                 for (let k = 0; k < scanDetails.hosts.length; k++) {
 
                     let hostPath = scanPath + '/hosts/' + scanDetails.hosts[k].host_id;
@@ -169,13 +174,39 @@ cron.schedule('*/7 * * * * *', function() {
                     foundHost = await hostOps.doesHostExist(hostDetails.info);
 
                     if (foundHost) {
-                        
+                        curHost = foundHost;
+                        hostOps.updateHost(foundHost, hostDetails.info, scans[j].nessus_id, scanDetails.hosts[k].host_id);
                     }
 
                     else {
-                        hostOps.createHost(hostDetails.info, scans[j].nessus_id, scanDetails.hosts[k].host_id);
+                        curHost = await hostOps.createHost(hostDetails.info, scans[j].nessus_id, scanDetails.hosts[k].host_id);
                     }
-                }                
+
+                    for (let l = 0; l < hostDetails.vulnerabilities.length; l++) {
+                        let vulnPath = hostPath + '/plugins/' + hostDetails.vulnerabilities[l].plugin_id;
+
+                        try {
+                            vulnDetails = await generalOps.httpRequest(scanners[i], vulnPath, 'GET', null, cookie.token);
+                        }
+
+                        catch {
+                            break;
+                        }
+
+                        if (vulnDetails.info.plugindescription.severity != 0) {
+
+                            curVuln = await vulnOps.doesVulnExist(curHost, vulnDetails);
+
+                            if (curVuln) {
+                                console.log("Vuln Found");
+                            }
+
+                            else {
+                                vulnOps.createVuln(curHost, vulnDetails);
+                            }
+                        }
+                    }
+                }
             }
 
             try {
