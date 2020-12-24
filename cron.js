@@ -156,56 +156,68 @@ cron.schedule('*/7 * * * * *', function() {
             scans = await models.Scan.find({scanner_id: scanners[i]._id}).exec();
 
             for (let j = 0; j < scans.length; j++) {
-                let scanPath = '/scans/' + scans[j].nessus_id;
 
-                try {
-                    scanDetails = await generalOps.httpRequest(scanners[i], scanPath, 'GET', null, cookie.token);
-                }
+                //Only import if the scan has changed since last modification date (last scan date)
+                if(scans[j].last_imported === undefined || scans[j].last_imported < scans[j].modified ) {
+                    
+                    let scanPath = '/scans/' + scans[j].nessus_id;
 
-                catch {
-                    continue;
-                }
-
-                //Update or create all hosts
-                for (let k = 0; k < scanDetails.hosts.length; k++) {
-
-                    let hostPath = scanPath + '/hosts/' + scanDetails.hosts[k].host_id;
-                    hostDetails = await generalOps.httpRequest(scanners[i], hostPath, 'GET', null, cookie.token);
-                    foundHost = await hostOps.doesHostExist(hostDetails.info);
-
-                    if (foundHost) {
-                        curHost = foundHost;
-                        hostOps.updateHost(foundHost, hostDetails.info, scans[j].nessus_id, scanDetails.hosts[k].host_id);
+                    try {
+                        scanDetails = await generalOps.httpRequest(scanners[i], scanPath, 'GET', null, cookie.token);
                     }
 
-                    else {
-                        curHost = await hostOps.createHost(hostDetails.info, scans[j].nessus_id, scanDetails.hosts[k].host_id);
+                    catch {
+                        continue;
                     }
 
-                    for (let l = 0; l < hostDetails.vulnerabilities.length; l++) {
-                        let vulnPath = hostPath + '/plugins/' + hostDetails.vulnerabilities[l].plugin_id;
+                    //Update or create all hosts
+                    for (let k = 0; k < scanDetails.hosts.length; k++) {
 
-                        try {
-                            vulnDetails = await generalOps.httpRequest(scanners[i], vulnPath, 'GET', null, cookie.token);
+                        let hostPath = scanPath + '/hosts/' + scanDetails.hosts[k].host_id;
+                        hostDetails = await generalOps.httpRequest(scanners[i], hostPath, 'GET', null, cookie.token);
+                        foundHost = await hostOps.doesHostExist(hostDetails.info);
+
+                        if (foundHost) {
+                            curHost = foundHost;
+                            hostOps.updateHost(foundHost, hostDetails.info, scans[j].nessus_id, scanDetails.hosts[k].host_id);
                         }
 
-                        catch {
-                            break;
+                        else {
+                            curHost = await hostOps.createHost(hostDetails.info, scans[j].nessus_id, scanDetails.hosts[k].host_id);
                         }
 
-                        if (vulnDetails.info.plugindescription.severity != 0) {
+                        //Close out all vulnerabilities
+                        models.Vulnerability.updateMany({host_id: curHost._id}, {status: 'resolved', resolved: new Date()});
 
-                            curVuln = await vulnOps.doesVulnExist(curHost, vulnDetails);
+                        //Update or create all vulnerabilities, assume the one's not present in the report are resolved and stay resolved.
+                        for (let l = 0; l < hostDetails.vulnerabilities.length; l++) {
+                            let vulnPath = hostPath + '/plugins/' + hostDetails.vulnerabilities[l].plugin_id;
 
-                            if (curVuln) {
-                                console.log("Vuln Found");
+                            try {
+                                vulnDetails = await generalOps.httpRequest(scanners[i], vulnPath, 'GET', null, cookie.token);
                             }
 
-                            else {
-                                vulnOps.createVuln(curHost, vulnDetails);
+                            catch {
+                                break;
+                            }
+
+                            if (vulnDetails.info.plugindescription.severity != 0) {
+
+                                curVuln = await vulnOps.doesVulnExist(curHost, vulnDetails);
+
+                                if (curVuln) {
+                                    vulnOps.updateVuln(curVuln, vulnDetails);
+                                }
+
+                                else {
+                                    vulnOps.createVuln(curHost, vulnDetails);
+                                }
                             }
                         }
                     }
+
+                    scans[j].last_imported = new Date();
+                    scans[j].save();
                 }
             }
 

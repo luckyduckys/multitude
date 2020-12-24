@@ -2,14 +2,14 @@ const models = require('./schemas_and_models');
 
 async function doesVulnExist (host, nessus_vuln) {
 
-    let results = await models.Vulnerability.findOne({
+    let result = await models.Vulnerability.findOne({
         host_id: host._id,
         ports: Object.keys(nessus_vuln.outputs[0].ports),
         pluginId: nessus_vuln.info.plugindescription.pluginid
     });
 
-    if (results) {
-        return results;
+    if (result) {
+        return result;
     }
 
     else {
@@ -43,7 +43,35 @@ function createVuln (host, nessus_vuln) {
     newVuln.save();
 }
 
+function updateVuln (vulnToUpdate, nessus_vuln = null, resolve = false) {
+    
+    if (resolve) {
+        vulnToUpdate.resolved = new Date();
+        vulnToUpdate.status = "resolved";
+    }
+
+    else if (nessus_vuln) {
+        vulnToUpdate.resolved = undefined;
+        vulnToUpdate.status = "active";
+        
+        if (nessus_vuln.info.plugindescription.pluginattributes.hasOwnProperty('description')) {
+            vulnToUpdate.description = nessus_vuln.info.plugindescription.pluginattributes.description;
+        }
+
+        if (nessus_vuln.info.plugindescription.pluginattributes.hasOwnProperty('synopsis')) {
+            vulnToUpdate.synopsis = nessus_vuln.info.plugindescription.pluginattributes.synopsis;
+        }
+
+        if(nessus_vuln.info.plugindescription.pluginattributes.hasOwnProperty('solution')) {
+            vulnToUpdate.solution = nessus_vuln.info.plugindescription.pluginattributes.solution;
+        }
+
+        vulnToUpdate.save();
+    }
+}
+
 module.exports = {
     doesVulnExist,
-    createVuln
+    createVuln,
+    updateVuln
 }
