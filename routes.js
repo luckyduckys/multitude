@@ -23,7 +23,7 @@ module.exports = function(app) {
         res.render('vulnerabilities.ejs', {vulnerabilities: testData});
     });
     
-    app.get('/assets', function(req, res) {
+    app.get('/hosts', function(req, res) {
         let testData = [{
             name: "Test Server",
             address: "192.168.110.16",
@@ -32,7 +32,7 @@ module.exports = function(app) {
             scanner: "Home Scanner"
         }];
     
-        res.render('assets.ejs', {assets: testData});
+        res.render('hosts.ejs', {assets: testData});
     });
     
     app.get('/manage/scanners', function(req, res) {
@@ -67,7 +67,6 @@ module.exports = function(app) {
 
     app.post('/api/scanners', function(req,res) {
         let statusCode = 200;
-        let scannerStatus = '';
 
         models.Scanner.find({ip: req.body.ipAddress}, function(err, results) {
 
@@ -106,6 +105,17 @@ module.exports = function(app) {
 
     app.get('/api/scans', function(req, res) {
         models.Scan.find({}, function(err, results) {
+            if (err) {
+                console.log(err);
+            }
+
+            res.set('Content-Type', 'application/json');
+            res.send(results);
+        });
+    });
+
+    app.get('/api/hosts', function(req, res) {
+        models.Host.find({}, function(err, results) {
             if (err) {
                 console.log(err);
             }

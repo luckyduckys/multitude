@@ -122,6 +122,7 @@ cron.schedule('0 * * * *', function() {
     });
 });
 
+//Import scan data
 cron.schedule('*/7 * * * * *', function() {
     let scanDetails = {};
     let scans = [];
