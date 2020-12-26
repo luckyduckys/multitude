@@ -1,5 +1,6 @@
 require('dotenv').config();
 const mongoose = require("mongoose");
+const encryption = require("mongoose-encryption");
 
 const vulnerabilitySchema = new mongoose.Schema({
     severity: {
@@ -68,6 +69,12 @@ const hostSchema = new mongoose.Schema({
     lastScan: Date,
     nessus_id: Number,
     scan_id: String,
+});
+
+scannerSchema.plugin(encryption, {
+    encryptionKey: process.env.ENC_KEY,
+    signingKey: process.env.SIG_KEY,
+    encryptedFields: ['username', 'password']
 });
 
 const Vulnerability = new mongoose.model('vulnerability', vulnerabilitySchema, 'vulnerabilities');
