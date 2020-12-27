@@ -36,7 +36,7 @@ async function createHost (nessus_host, scan_id, host_id) {
         ip: nessus_host['host-ip'],
         scan_id: scan_id,
         nessus_id: host_id,
-        last_scan: nessus_host.host_end
+        lastScan: nessus_host.host_end
     });
 
     if (nessus_host.hasOwnProperty('mac-address')) {

@@ -24,15 +24,7 @@ module.exports = function(app) {
     });
     
     app.get('/hosts', function(req, res) {
-        let testData = [{
-            name: "Test Server",
-            address: "192.168.110.16",
-            os: "Windows Server 2019",
-            lastScan: "December 4th, 2020",
-            scanner: "Home Scanner"
-        }];
-    
-        res.render('hosts.ejs', {assets: testData});
+        res.render('hosts.ejs', {title: 'hosts'});
     });
     
     app.get('/manage/scanners', function(req, res) {
