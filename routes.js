@@ -11,16 +11,7 @@ module.exports = function(app) {
     });
     
     app.get('/vulnerabilities', function(req, res) {
-        let testData = [{
-            severity: 4,
-            cvss: 10.0,
-            name: "Adobe Reader Unsupported Version",
-            family: "Adobe",
-            pluginId: "012345",
-            count: 10
-        }];
-    
-        res.render('vulnerabilities.ejs', {vulnerabilities: testData});
+        res.render('vulnerabilities.ejs', {title: 'vulnerabilities'});
     });
     
     app.get('/hosts', function(req, res) {
@@ -115,5 +106,24 @@ module.exports = function(app) {
             res.set('Content-Type', 'application/json');
             res.send(results);
         });
+    });
+
+    app.get('/api/vulnerabilities', async function(req, res) {
+        let vulns = await models.Vulnerability.aggregate([
+            { 
+                $group: { 
+                    _id: '$pluginId',
+                    severity: { $first: '$severity' },
+                    pluginName: { $first: '$pluginName'},
+                    pluginFamily: { $first: '$pluginFamily'},
+                    pluginId: { $first: '$pluginId'},
+                    count: { $sum: 1 },
+
+                }
+            }
+        ]).exec();
+
+        res.set('Content-Type', 'application/json');
+        res.send(vulns);
     });
 }

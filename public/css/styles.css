@@ -45,19 +45,19 @@ body {
 
 }
 
-#vuln-count-4 {
+.vuln-count-4 {
     background-color: #D43F3A;
 }
 
-#vuln-count-3 {
+.vuln-count-3 {
     background-color: #EE9336;
 }
 
-#vuln-count-2 {
+.vuln-count-2 {
     background-color: #FDC431;
 }
 
-#vuln-count-1 {
+.vuln-count-1 {
     background-color: #4CAE4C;
 }
 

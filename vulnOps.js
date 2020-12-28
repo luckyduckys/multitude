@@ -18,6 +18,7 @@ async function doesVulnExist (host, nessus_vuln) {
 }
 
 function createVuln (host, nessus_vuln) {
+    console.log(nessus_vuln.info.plugindescription.pluginname);
     let newVuln = new models.Vulnerability ({
         host_id: host._id,
         severity: nessus_vuln.info.plugindescription.severity,
@@ -26,6 +27,7 @@ function createVuln (host, nessus_vuln) {
         added: new Date(),
         pluginFamily: nessus_vuln.info.plugindescription.pluginfamily,
         pluginId: nessus_vuln.info.plugindescription.pluginid,
+        pluginName: nessus_vuln.info.plugindescription.pluginname
     })
 
     if (nessus_vuln.info.plugindescription.pluginattributes.hasOwnProperty('description')) {

@@ -14,6 +14,7 @@ const vulnerabilitySchema = new mongoose.Schema({
     resolved: Date,
     added: Date,
     description: String,
+    pluginName: String,
     pluginFamily: String,
     pluginId: Number,
     synopsis: String,

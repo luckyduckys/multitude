@@ -7,7 +7,53 @@
                 <h2>Vulnerabilities</h2>
             </div>
             <div class="col-offset-1 mx-5">
-                <button class="btn btn-dark">Filter</button>
+                <div class="col-offset-1 mx-5">
+                    <button class="btn btn-dark" data-toggle="modal" data-target="#filterVulns">Filter</button>
+                    <div class="modal fade" id="filterVulns" tabindex="-1" role="dialog" aria-labelledby="filterVulnsTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="filterVulnsTitle">Filter Vulns</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form id="filterVulnsForm" action="/api/vulns" method="POST">
+                                    <div class="modal-body">
+                                        <div class="form-row">
+                                            <div class="form-group col">
+                                                <label for="name">Name</label>
+                                                <input type="text" name="name" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col">
+                                                <label for="ipAddress">IP Address</label>
+                                                <input type="text" name="ipAddress" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-6">
+                                                <label for="username">Username</label>
+                                                <input type="text" name="username" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-6">
+                                                <label for="password">Password</label>
+                                                <input type="password" name="password" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-success">Create new</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row my-1">
@@ -16,31 +62,21 @@
             </div>
         </div>
     </div>
-    <% if (vulnerabilities) { %>
-    <div class="table-responsive">
+    <div class="loadingGif">
+        <img src="/static/images/ajax-loader.gif"/>
+    </div>
+    <div id="vulnsTable" class="table-responsive">
         <table class="table table-hover">
             <thead>
                 <tr>
                     <th scope="col"><span class="text-nowrap">Severity</span></th>
-                    <th scope="col"><span class="text-nowrap">CVSSv3 Score</span></th>
                     <th scope="col"><span class="text-nowrap">Name</span></th>
                     <th scope="col"><span class="text-nowrap">Family</span></th>
                     <th scope="col"><span class="text-nowrap">Plugin ID</span></th>
                     <th scope="col"><span class="text-nowrap">Count</span></th>
                 </tr>
             </thead>
-            <tbody>
-    <% vulnerabilities.forEach(function(vulnerability) { %>
-                <tr>
-                    <td><span class="text-nowrap"><span class="dot" id="vuln-count-<%=vulnerability.severity %>"></span></span></td>
-                    <td><span class="text-nowrap"><%= vulnerability.cvss %></span></td>
-                    <td><span class="text-nowrap"><%= vulnerability.name %></span></td>
-                    <td><span class="text-nowrap"><%= vulnerability.family %></span></td>
-                    <td><span class="text-nowrap"><%= vulnerability.pluginId %></span></td>
-                    <td><span class="text-nowrap"><%= vulnerability.count %></span></td>
-                </tr>
-    <% }); %>
-    <% } %>
+            <tbody id="vulnsTableBody">
             </tbody>
         </table>
     </div>

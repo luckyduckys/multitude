@@ -7,17 +7,17 @@
                 <h2>Hosts</h2>
             </div>
             <div class="col-offset-1 mx-5">
-                <button class="btn btn-dark" data-toggle="modal" data-target="#filterScans">Filter</button>
-                <div class="modal fade" id="filterScans" tabindex="-1" role="dialog" aria-labelledby="filterScansTitle" aria-hidden="true">
+                <button class="btn btn-dark" data-toggle="modal" data-target="#filterHosts">Filter</button>
+                <div class="modal fade" id="filterHosts" tabindex="-1" role="dialog" aria-labelledby="filterHostsTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="filterScansTitle">Filter Scans</h5>
+                                <h5 class="modal-title" id="filterHostsTitle">Filter Hosts</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <form id="filterScansForm" action="/api/scans" method="POST">
+                            <form id="filterHostsForm" action="/api/hosts" method="POST">
                                 <div class="modal-body">
                                     <div class="form-row">
                                         <div class="form-group col">
