@@ -3,7 +3,7 @@ const models = require("./schemas_and_models");
 module.exports = function(app) {
 
     app.get('/', function(req, res) {
-        res.render('index.ejs', {criticalCount: 0, highCount: 0, mediumCount: 0, lowCount: 0});
+        res.render('index.ejs', {title: 'index'});
     });
     
     app.get('/login', function(req, res) {
@@ -110,20 +110,32 @@ module.exports = function(app) {
 
     app.get('/api/vulnerabilities', async function(req, res) {
         let vulns = await models.Vulnerability.aggregate([
-            { 
-                $group: { 
+            { $group: { 
                     _id: '$pluginId',
                     severity: { $first: '$severity' },
                     pluginName: { $first: '$pluginName'},
                     pluginFamily: { $first: '$pluginFamily'},
-                    pluginId: { $first: '$pluginId'},
-                    count: { $sum: 1 },
+                    instanceCount: { $sum: 1 },
+                }},
 
+            { $sort: {
+                    instanceCount: -1
                 }
             }
         ]).exec();
 
+        let counts = await models.Vulnerability.aggregate([
+            { $group: {
+                _id: '$severity',
+                severityCount: { $sum: 1}
+            }},
+
+            { $sort: {
+                _id: -1
+            }},
+        ]).exec();
+
         res.set('Content-Type', 'application/json');
-        res.send(vulns);
+        res.send({vulnerabilities: vulns, vulnerability_counts: counts});
     });
 }
