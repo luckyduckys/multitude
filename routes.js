@@ -1,4 +1,5 @@
 const models = require("./schemas_and_models");
+const _ = require("lodash");
 
 module.exports = function(app) {
 
@@ -109,22 +110,141 @@ module.exports = function(app) {
     });
 
     app.get('/api/vulnerabilities', async function(req, res) {
-        let vulns = await models.Vulnerability.aggregate([
-            { $group: { 
-                    _id: '$pluginId',
-                    severity: { $first: '$severity' },
-                    pluginName: { $first: '$pluginName'},
-                    pluginFamily: { $first: '$pluginFamily'},
-                    instanceCount: { $sum: 1 },
-                }},
+        let vulns;
+        let counts;
+        let order = -1;
 
-            { $sort: {
-                    instanceCount: -1
+        if (_.isEmpty(req.query)) {
+            vulns = await models.Vulnerability.aggregate([
+                { $group: { 
+                        _id: '$pluginId',
+                        severity: { $first: '$severity' },
+                        pluginName: { $first: '$pluginName'},
+                        pluginFamily: { $first: '$pluginFamily'},
+                        instanceCount: { $sum: 1 },
+                    }},
+
+                { $sort: {
+                        instanceCount: -1
+                    }
+                }
+            ]).exec();
+        }
+
+        else if (_.hasIn(req.query, "orderby")) {
+
+            if (_.hasIn(req.query, "order")) {
+                if (_.lowerCase(req.query.order) === "ascending") {
+                    order = 1;
                 }
             }
-        ]).exec();
 
-        let counts = await models.Vulnerability.aggregate([
+            switch (_.lowerCase(req.query.orderby)) {
+                case "severity":
+                    vulns = await models.Vulnerability.aggregate([
+                        { $group: { 
+                                _id: '$pluginId',
+                                severity: { $first: '$severity' },
+                                pluginName: { $first: '$pluginName'},
+                                pluginFamily: { $first: '$pluginFamily'},
+                                instanceCount: { $sum: 1 },
+                            }},
+        
+                        { $sort: {
+                                severity: order
+                            }
+                        }
+                    ]).exec();
+                    break;
+                
+                case "name":
+                    vulns = await models.Vulnerability.aggregate([
+                        { $group: { 
+                                _id: '$pluginId',
+                                severity: { $first: '$severity' },
+                                pluginName: { $first: '$pluginName'},
+                                pluginFamily: { $first: '$pluginFamily'},
+                                instanceCount: { $sum: 1 },
+                            }},
+        
+                        { $sort: {
+                                pluginName: order
+                            }
+                        }
+                    ]).exec();
+                    break;
+                
+                case "family":
+                    vulns = await models.Vulnerability.aggregate([
+                        { $group: { 
+                                _id: '$pluginId',
+                                severity: { $first: '$severity' },
+                                pluginName: { $first: '$pluginName'},
+                                pluginFamily: { $first: '$pluginFamily'},
+                                instanceCount: { $sum: 1 },
+                            }},
+        
+                        { $sort: {
+                                pluginFamily: order
+                            }
+                        }
+                    ]).exec();
+                    break;
+                
+                case "plugin id":
+                    vulns = await models.Vulnerability.aggregate([
+                        { $group: { 
+                                _id: '$pluginId',
+                                severity: { $first: '$severity' },
+                                pluginName: { $first: '$pluginName'},
+                                pluginFamily: { $first: '$pluginFamily'},
+                                instanceCount: { $sum: 1 },
+                            }},
+        
+                        { $sort: {
+                                _id: order
+                            }
+                        }
+                    ]).exec();
+                    break;
+                
+                default:
+                    vulns = await models.Vulnerability.aggregate([
+                        { $group: { 
+                                _id: '$pluginId',
+                                severity: { $first: '$severity' },
+                                pluginName: { $first: '$pluginName'},
+                                pluginFamily: { $first: '$pluginFamily'},
+                                instanceCount: { $sum: 1 },
+                            }},
+        
+                        { $sort: {
+                                instanceCount: order
+                            }
+                        }
+                    ]).exec();
+                    break;
+            }   
+        }
+
+        else {
+            vulns = await models.Vulnerability.aggregate([
+                { $group: { 
+                        _id: '$pluginId',
+                        severity: { $first: '$severity' },
+                        pluginName: { $first: '$pluginName'},
+                        pluginFamily: { $first: '$pluginFamily'},
+                        instanceCount: { $sum: 1 },
+                    }},
+
+                { $sort: {
+                        instanceCount: order
+                    }
+                }
+            ]).exec();
+        }
+
+        counts = await models.Vulnerability.aggregate([
             { $group: {
                 _id: '$severity',
                 severityCount: { $sum: 1}

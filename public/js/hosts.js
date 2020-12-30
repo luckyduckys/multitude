@@ -34,7 +34,6 @@ function populateTable() {
 
             $(".loadingGif").addClass("hidden")
             if (data.length > 0) {
-                console.log(data);
                 $("#hostsTable").removeClass("hidden")
                 data.forEach(function (host) {
                     $("#hostsTableBody").append('<tr>');
