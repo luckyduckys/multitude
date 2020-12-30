@@ -38,15 +38,45 @@ module.exports = function(app) {
         res.render('scans.ejs', {title: 'scans'});
     });
 
-    app.get('/api/scanners', function(req,res) {
-        models.Scanner.find({}, function(err, results) {
-            if (err) {
-                console.log(err);
+    app.get('/api/scanners', async function(req,res) {
+        let scanners = models.Scanner.find({})
+        let order = -1;
+
+        if (_.hasIn(req.query, "orderby")) {
+
+            if (_.hasIn(req.query, "order")) {
+                if (_.lowerCase(req.query.order) === "ascending") {
+                    order = 1;
+                }
             }
 
-            res.set('Content-Type', 'application/json');
-            res.send(results);
-        });
+            switch (_.lowerCase(req.query.orderby)) {
+                case 'scanner name':
+                    scannners = scanners.sort({name: order});
+                    break;
+                
+                case 'ip address':
+                    scanners = scanners.sort({ip: order});
+                    break;
+                
+                case 'status':
+                    scanners = scanners.sort({status: order});
+                    break;
+                
+                case 'version':
+                    scanners = scanners.sort({version: order});
+                    break;
+                
+                default:
+                    scanners = scanners.sort({type: order});
+                    break;
+    
+            }
+        }
+
+        scanners = await scanners.exec()
+        res.set('Content-Type', 'application/json');
+        res.send(scanners);
     });
 
     app.post('/api/scanners', function(req,res) {
@@ -87,15 +117,41 @@ module.exports = function(app) {
         res.sendStatus(200);
     });
 
-    app.get('/api/scans', function(req, res) {
-        models.Scan.find({}, function(err, results) {
-            if (err) {
-                console.log(err);
+    app.get('/api/scans', async function(req, res) {
+        let scans = models.Scan.find({})
+        let order = -1;
+
+        if (_.hasIn(req.query, "orderby")) {
+
+            if (_.hasIn(req.query, "order")) {
+                if (_.lowerCase(req.query.order) === "ascending") {
+                    order = 1;
+                }
             }
 
-            res.set('Content-Type', 'application/json');
-            res.send(results);
-        });
+            switch (_.lowerCase(req.query.orderby)) {
+                case 'name':
+                    scans = scans.sort({name: order});
+                    break;
+                
+                case 'scanner':
+                    scans = scans.sort({scanner_name: order});
+                    break;
+                
+                case 'created':
+                    scans = scans.sort({created: order});
+                    break;
+                
+                default:
+                    scans = scans.sort({modified: order});
+                    break;
+    
+            }
+        }
+
+        scans = await scans.exec()
+        res.set('Content-Type', 'application/json');
+        res.send(scans);
     });
 
     app.get('/api/hosts', async function(req, res) {
@@ -103,30 +159,31 @@ module.exports = function(app) {
         let order = -1;
 
         if (_.hasIn(req.query, "orderby")) {
+
             if (_.hasIn(req.query, "order")) {
                 if (_.lowerCase(req.query.order) === "ascending") {
                     order = 1;
                 }
             }
-        }
 
-        switch (_.lowerCase(req.query.orderby)) {
-            case 'fqdn':
-                hosts = hosts.sort({fqdn: order});
-                break;
-            
-            case 'address':
-                hosts = hosts.sort({ip: order});
-                break;
-            
-            case 'os':
-                hosts = hosts.sort({os: order});
-                break;
-            
-            default:
-                hosts = hosts.sort({lastScan: order});
-                break;
-
+            switch (_.lowerCase(req.query.orderby)) {
+                case 'fqdn':
+                    hosts = hosts.sort({fqdn: order});
+                    break;
+                
+                case 'address':
+                    hosts = hosts.sort({ip: order});
+                    break;
+                
+                case 'os':
+                    hosts = hosts.sort({os: order});
+                    break;
+                
+                default:
+                    hosts = hosts.sort({lastScan: order});
+                    break;
+    
+            }
         }
 
         hosts = await hosts.exec()

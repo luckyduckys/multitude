@@ -30,7 +30,7 @@ $("th > span.text-nowrap").click(function() {
         filter.order = "descending";
     }
 
-    populateTable(filter)
+    populateTable(filter);
 });
 
 function populateTable(filter = null) {

@@ -69,7 +69,7 @@ const hostSchema = new mongoose.Schema({
     os: String,
     lastScan: Date,
     nessus_id: Number,
-    scan_id: String,
+    scan_id: String
 });
 
 scannerSchema.plugin(encryption, {

@@ -77,11 +77,11 @@ async function updateHost (hostToUpdate, nessus_host, scan_id, host_id) {
     }
 
     if (nessus_host.hasOwnProperty('host-fqdn')) {
-        models.Host.updateOne({_id: hostToUpdate._id}, {fqdn: nessus_host['host-fqdn']});
+        models.Host.updateOne({_id: hostToUpdate._id}, {fqdn: _.toLower(nessus_host['host-fqdn'])});
     }
 
     if (nessus_host.hasOwnProperty('operating-system')) {
-        models.Host.updateOne({_id: hostToUpdate._id}, {os: nessus_host['operating-system']});
+        models.Host.updateOne({_id: hostToUpdate._id}, {os: _.toLower(nessus_host['operating-system'])});
     }
 }
 
