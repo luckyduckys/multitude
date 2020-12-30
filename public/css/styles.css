@@ -75,3 +75,7 @@ body {
 .hidden {
     display: none;
 }
+
+th > span.text-nowrap {
+    cursor: pointer;
+}
