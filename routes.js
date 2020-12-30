@@ -98,19 +98,44 @@ module.exports = function(app) {
         });
     });
 
-    app.get('/api/hosts', function(req, res) {
-        models.Host.find({}, function(err, results) {
-            if (err) {
-                console.log(err);
-            }
+    app.get('/api/hosts', async function(req, res) {
+        let hosts = models.Host.find({})
+        let order = -1;
 
-            res.set('Content-Type', 'application/json');
-            res.send(results);
-        });
+        if (_.hasIn(req.query, "orderby")) {
+            if (_.hasIn(req.query, "order")) {
+                if (_.lowerCase(req.query.order) === "ascending") {
+                    order = 1;
+                }
+            }
+        }
+
+        switch (_.lowerCase(req.query.orderby)) {
+            case 'fqdn':
+                hosts = hosts.sort({fqdn: order});
+                break;
+            
+            case 'address':
+                hosts = hosts.sort({ip: order});
+                break;
+            
+            case 'os':
+                hosts = hosts.sort({os: order});
+                break;
+            
+            default:
+                hosts = hosts.sort({lastScan: order});
+                break;
+
+        }
+
+        hosts = await hosts.exec()
+        res.set('Content-Type', 'application/json');
+        res.send(hosts);
     });
 
     app.get('/api/vulnerabilities', async function(req, res) {
-        
+
         let order = -1;
         let vulns =  models.Vulnerability.aggregate([
             { $group: { 

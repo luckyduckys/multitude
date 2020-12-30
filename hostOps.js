@@ -1,4 +1,5 @@
 const models = require("./schemas_and_models");
+const _ = require("lodash");
 
 async function doesHostExist (nessus_host = {}) {
     let count = 0;
@@ -48,11 +49,11 @@ async function createHost (nessus_host, scan_id, host_id) {
     }
 
     if (nessus_host.hasOwnProperty('host-fqdn')) {
-        host.fqdn = nessus_host['host-fqdn'];
+        host.fqdn = _.toLower(nessus_host['host-fqdn']);
     }
 
     if (nessus_host.hasOwnProperty('operating-system')) {
-        host.os = nessus_host['operating-system'];
+        host.os = _.toLower(nessus_host['operating-system']);
     }
 
     host.save();
