@@ -1,6 +1,6 @@
-$(document).ready(populateTable());
-
 let filter = {};
+
+$(document).ready(populateTable());
 
 $("input").val('');
 
@@ -86,46 +86,42 @@ function populateTable() {
     $(".loadingGif").removeClass("hidden");
     $(".pagination").addClass("hidden");
 
-    setTimeout(function() {
+    let url = "/api/vulnerabilities";
+    let keys = Object.keys(filter);
 
-        let url = "/api/vulnerabilities";
-        let keys = Object.keys(filter);
+    for (let i = 0; i < keys.length; i++) {
 
-        for (let i = 0; i < keys.length; i++) {
-
-            if (i === 0) {
-                url += "?" + keys[i] + "=" + filter[keys[i]];
-            }
-
-            else {
-                url += "&" + keys[i] + "=" + filter[keys[i]];
-            }
+        if (i === 0) {
+            url += "?" + keys[i] + "=" + filter[keys[i]];
         }
 
-        $.get(url, function(data, status) {
-            $(".loadingGif").addClass("hidden");
+        else {
+            url += "&" + keys[i] + "=" + filter[keys[i]];
+        }
+    }
 
-            if (data.vulnerabilities.length > 0) {
+    $.get(url, function(data, status) {
+        $(".loadingGif").addClass("hidden");
 
-                $("#vulnsTable").removeClass("hidden");
-                
-                data.vulnerabilities.forEach(function (vuln) {
+        if (data.vulnerabilities.length > 0) {
 
-                    $("#vulnsTableBody").append('<tr>');
-                    $("#vulnsTableBody").append('<td><span class="text-nowrap dot vuln-count-' + vuln.severity + '"</span></td>');
-                    $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.pluginName + '</span></td>');
-                    $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.pluginFamily + '</span></td>');
-                    $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln._id + '</span></td>');
-                    $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.instanceCount + '</span></td>');
-                    $("#vulnsTableBody").append('</tr>');
+            $("#vulnsTable").removeClass("hidden");
+            
+            data.vulnerabilities.forEach(function (vuln) {
 
-                });
+                $("#vulnsTableBody").append('<tr>');
+                $("#vulnsTableBody").append('<td><span class="text-nowrap dot vuln-count-' + vuln.severity + '"</span></td>');
+                $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.pluginName + '</span></td>');
+                $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.pluginFamily + '</span></td>');
+                $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln._id + '</span></td>');
+                $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.instanceCount + '</span></td>');
+                $("#vulnsTableBody").append('</tr>');
 
-                createPagination(data.pageInfo);
-            }
-        });
-    },
-    1000);
+            });
+
+            createPagination(data.pageInfo);
+        }
+    });
 
     $("#filterVulns").modal('hide');
     //$("#filterVulns input").val('');
