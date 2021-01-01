@@ -55,6 +55,37 @@ function httpRequest(scanner, path, method, data = null, token = null) {
     });
 }
 
+function paginate(modelToPaginate, perPage, pageNumber) {
+    let totalObjects;
+    let totalPages;
+    let itemsToSkip;
+
+    if (typeof perPage !== "number" || typeof pageNumber !== "number") {
+        console.log(typeof perPage);
+        throw {error: "perPage and pageNumber must be a number greater than zero"};
+    }
+
+    else if ((perPage < 1 && perPage > 100) && (pageNumber > 0)) {
+        throw {error: "perPage and pageNumber must be a number greater than zero"}
+    }
+
+    else {
+        console.log(totalObjects);
+        totalObjects = modelToPaginate.estimatedDocumentCount();
+        totalPages = totalObjects / perPage;
+
+        if (pageNumber > totalPages) {
+            throw {error: "page number must be less than total number of pages"};
+        }
+
+        itemsToSkip = pageNumber * perPage;
+        modelToPaginate = modelToPaginate.skip(itemsToSkip).limit(perPage);
+    }
+
+    return {totalPages: totalPages, perPage: perPage, pageNumber: pageNumber};
+}
+
 module.exports = {
-    httpRequest
+    httpRequest,
+    paginate
 }

@@ -1,5 +1,6 @@
 const models = require("./schemas_and_models");
 const _ = require("lodash");
+const generalOps = require("./generalOps");
 
 module.exports = function(app) {
 
@@ -194,6 +195,15 @@ module.exports = function(app) {
     app.get('/api/vulnerabilities', async function(req, res) {
 
         let order = -1;
+        let perPage;
+        let pageNumber;
+        let totalPages;
+        let itemsToSkip;
+        let pageInfo = {
+            pageNumber: 1,
+            totalPages: 1
+        };
+
         let vulns =  models.Vulnerability.aggregate([
             { $group: { 
                     _id: '$pluginId',
@@ -205,15 +215,17 @@ module.exports = function(app) {
             }
         ]);
 
-        let counts = await models.Vulnerability.aggregate([
-            { $group: {
-                _id: '$severity',
-                severityCount: { $sum: 1}
-            }},
+        let entryCount = await models.Vulnerability.aggregate([
+            { $group: { 
+                    _id: '$pluginId',
+                    severity: { $first: '$severity' },
+                    pluginName: { $first: '$pluginName'},
+                    pluginFamily: { $first: '$pluginFamily'},
+                    instanceCount: { $sum: 1 },
+              }
+            },
 
-            { $sort: {
-                _id: -1
-            }},
+            { $count: "entryCount"}
         ]).exec();
 
         if (_.hasIn(req.query, "orderby")) {
@@ -226,7 +238,7 @@ module.exports = function(app) {
 
             switch (_.lowerCase(req.query.orderby)) {
                 case "severity":
-                    vulns = vulns.sort({severity: order});
+                    vulns = vulns.sort({severity: order});vulns.count("entryCount");
                     break;
                 
                 case "name":
@@ -247,9 +259,53 @@ module.exports = function(app) {
             }   
         }
 
-        vulns = await vulns.exec();
+        if (_.hasIn(req.query, "perPage")) {
+            perPage = Number(req.query.perPage);
+            
+            if (_.hasIn(req.query, "pageNumber")) {
+                pageNumber = Number(req.query.pageNumber);
+            }
 
+            else {
+                pageNumber = 1;
+            }
+
+            if (!isNaN(perPage) && !isNaN(pageNumber)) {
+
+                totalPages = Math.ceil(entryCount[0].entryCount / perPage);
+
+                if (pageNumber <= totalPages) {
+
+                    if (pageNumber > 1) {
+
+                        itemsToSkip = (pageNumber - 1) * perPage;
+                        vulns = vulns.skip(itemsToSkip);
+                    }
+
+                    vulns = vulns.limit(perPage);
+
+                    pageInfo = {pageNumber: pageNumber, totalPages: totalPages, perPage: perPage};
+                }
+            }
+        }
+
+        vulns = await vulns.exec();
         res.set('Content-Type', 'application/json');
-        res.send({vulnerabilities: vulns, vulnerability_counts: counts});
+        res.send({vulnerabilities: vulns, pageInfo: pageInfo});
     });
+
+    app.get('/api/chart/totals', async function(req, res) {
+        let counts = await models.Vulnerability.aggregate([
+            { $group: {
+                _id: '$severity',
+                severityCount: { $sum: 1}
+            }},
+
+            { $sort: {
+                _id: -1
+            }},
+        ]).exec();
+
+        res.send(counts);
+    })
 }

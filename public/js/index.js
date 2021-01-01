@@ -5,11 +5,11 @@ function getCounts() {
     $(".loadingGif").removeClass("hidden");
 
     setTimeout(function() {
-        $.get('/api/vulnerabilities', function(data, status) {
+        $.get('/api/chart/totals', function(data, status) {
             $(".loadingGif").addClass("hidden")
-            if (data.vulnerability_counts.length > 0) {
+            if (data.length > 0) {
                 $(".vulnerability-row").removeClass("hidden");
-                data.vulnerability_counts.forEach(function(count) {
+                data.forEach(function(count) {
                     switch (count._id) {
                         case 4:
                             $('#totalCricitalCount').text(count.severityCount);

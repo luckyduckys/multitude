@@ -1,4 +1,5 @@
 const models = require('./schemas_and_models');
+const _ = require("lodash");
 
 async function doesVulnExist (host, nessus_vuln) {
 
@@ -18,16 +19,15 @@ async function doesVulnExist (host, nessus_vuln) {
 }
 
 function createVuln (host, nessus_vuln) {
-    console.log(nessus_vuln.info.plugindescription.pluginname);
     let newVuln = new models.Vulnerability ({
         host_id: host._id,
         severity: nessus_vuln.info.plugindescription.severity,
         ports: Object.keys(nessus_vuln.outputs[0].ports),
         status: 'active',
         added: new Date(),
-        pluginFamily: nessus_vuln.info.plugindescription.pluginfamily,
+        pluginFamily: _.toLower(nessus_vuln.info.plugindescription.pluginfamily),
         pluginId: nessus_vuln.info.plugindescription.pluginid,
-        pluginName: nessus_vuln.info.plugindescription.pluginname
+        pluginName: _.toLower(nessus_vuln.info.plugindescription.pluginname)
     })
 
     if (nessus_vuln.info.plugindescription.pluginattributes.hasOwnProperty('description')) {

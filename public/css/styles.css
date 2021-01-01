@@ -79,3 +79,27 @@ body {
 th > span.text-nowrap {
     cursor: pointer;
 }
+
+.page-link {
+    color: #000000;
+}
+
+.page-link:hover {
+    color: #647687;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.page-item.active .page-link {
+    background-color: #647687;
+    border-color: #647687;
+}
