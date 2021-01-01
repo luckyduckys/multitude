@@ -54,6 +54,7 @@ $("#filterVulnsForm").submit(function(event) {
         }
     });
 
+    filter.pageNumber = 1;
     populateTable();
 });
 
