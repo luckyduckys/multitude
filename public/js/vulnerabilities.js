@@ -4,7 +4,7 @@ $(document).ready(populateTable());
 
 $("input").val('');
 
-$("th > span.text-nowrap").click(function() {
+$("th > span.text-nowrap").click(async function() {
     let arrowClasses = $(this).children().attr("class").split(/\s+/);
     $("th > span.text-nowrap > span").removeClass("fa-sort-down");
     $("th > span.text-nowrap > span").removeClass("fa-sort-up");
@@ -33,10 +33,10 @@ $("th > span.text-nowrap").click(function() {
         filter.order = "descending";
     }
 
-    populateTable();
+    await populateTable();
 });
 
-$("#filterVulnsForm").submit(function(event) {
+$("#filterVulnsForm").submit(async function(event) {
     let keys;
     let formData = $("#filterVulnsForm").serializeArray()
 
@@ -55,10 +55,10 @@ $("#filterVulnsForm").submit(function(event) {
     });
 
     filter.pageNumber = 1;
-    populateTable();
+    await populateTable();
 });
 
-$(".pagination").on("click", ".page-item", function(event) {
+$(".pagination").on("click", ".page-item", async function(event) {
     let classes = $(this).attr("class").split(/\s+/);
     event.preventDefault();
     
@@ -76,11 +76,11 @@ $(".pagination").on("click", ".page-item", function(event) {
             filter.pageNumber = Number($(".page-item.active .page-link").text()) + 1;
         }
 
-        populateTable();
+        await populateTable();
     }
 });
 
-function populateTable() {
+async function populateTable() {
     $("#vulnsTableBody").empty();
     $("#vulnsTable").addClass("hidden");
     $(".loadingGif").removeClass("hidden");
@@ -88,6 +88,7 @@ function populateTable() {
 
     let url = "/api/vulnerabilities";
     let keys = Object.keys(filter);
+    let data;
 
     for (let i = 0; i < keys.length; i++) {
 
@@ -110,28 +111,27 @@ function populateTable() {
         }
     }
 
-    $.get(url, function(data, status) {
-        $(".loadingGif").addClass("hidden");
+    data = await $.get(url);
+    $(".loadingGif").addClass("hidden");
 
-        if (data.vulnerabilities.length > 0) {
+    if (data.vulnerabilities.length > 0) {
 
-            $("#vulnsTable").removeClass("hidden");
-            
-            data.vulnerabilities.forEach(function (vuln) {
+        $("#vulnsTable").removeClass("hidden");
+        
+        data.vulnerabilities.forEach(function (vuln) {
 
-                $("#vulnsTableBody").append('<tr>');
-                $("#vulnsTableBody").append('<td><span class="text-nowrap dot vuln-count-' + vuln.severity + '"</span></td>');
-                $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.pluginName + '</span></td>');
-                $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.pluginFamily + '</span></td>');
-                $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln._id + '</span></td>');
-                $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.instanceCount + '</span></td>');
-                $("#vulnsTableBody").append('</tr>');
+            $("#vulnsTableBody").append('<tr>');
+            $("#vulnsTableBody").append('<td><span class="text-nowrap dot vuln-count-' + vuln.severity + '"</span></td>');
+            $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.pluginName + '</span></td>');
+            $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.pluginFamily + '</span></td>');
+            $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln._id + '</span></td>');
+            $("#vulnsTableBody").append('<td><span class="text-nowrap">' + vuln.instanceCount + '</span></td>');
+            $("#vulnsTableBody").append('</tr>');
 
-            });
+        });
 
-            createPagination(data.pageInfo);
-        }
-    });
+        createPagination(data.pageInfo);
+    }
 
     $("#filterVulns").modal('hide');
     //$("#filterVulns input").val('');

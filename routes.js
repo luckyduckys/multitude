@@ -227,37 +227,6 @@ module.exports = function(app) {
             }
         ]);
 
-        if (_.hasIn(req.query, "orderby")) {
-
-            if (_.hasIn(req.query, "order")) {
-                if (_.lowerCase(req.query.order) === "ascending") {
-                    order = 1;
-                }
-            }
-
-            switch (_.lowerCase(req.query.orderby)) {
-                case "severity":
-                    vulns = vulns.sort({severity: order});
-                    break;
-                
-                case "name":
-                    vulns = vulns.sort({pluginName: order});
-                    break;
-                
-                case "family":
-                    vulns = vulns.sort({pluginFamily: order});
-                    break;
-                
-                case "plugin id":
-                    vulns = vulns.sort({_id: order});
-                    break;
-                
-                default:
-                    vulns = vulns.sort({instanceCount: order});
-                    break;
-            }   
-        }
-
         if (_.hasIn(req.query, "pluginName")) {
             vulns = vulns.match({
                     pluginName: {
@@ -327,6 +296,41 @@ module.exports = function(app) {
             }
         }
 
+        if (_.hasIn(req.query, "orderby")) {
+
+            if (_.hasIn(req.query, "order")) {
+                if (_.lowerCase(req.query.order) === "ascending") {
+                    order = 1;
+                }
+            }
+
+            switch (_.lowerCase(req.query.orderby)) {
+                case "severity":
+                    vulns = vulns.sort({severity: order, _id: 1});
+                    break;
+                
+                case "name":
+                    vulns = vulns.sort({pluginName: order, _id: 1});
+                    break;
+                
+                case "family":
+                    vulns = vulns.sort({pluginFamily: order, _id: 1});
+                    break;
+                
+                case "plugin id":
+                    vulns = vulns.sort({_id: order});
+                    break;
+                
+                default:
+                    vulns = vulns.sort({instanceCount: order, _id: 1});
+                    break;
+            }   
+        }
+
+        else {
+            vulns = vulns.sort({instanceCount: -1, _id: 1});
+        }
+
         //Get counts after filtering
         entryCount.count("entryCount");
         entryCount = await entryCount.exec();
@@ -352,6 +356,8 @@ module.exports = function(app) {
 
                         itemsToSkip = (pageNumber - 1) * perPage;
                         vulns = vulns.skip(itemsToSkip);
+                        console.log(pageNumber);
+                        console.log(vulns);
                     }
 
                     vulns = vulns.limit(perPage);
@@ -360,9 +366,8 @@ module.exports = function(app) {
                 }
             }
         }
-
+        
         vulns = await vulns.exec();
-
         res.set('Content-Type', 'application/json');
         res.send({vulnerabilities: vulns, pageInfo: pageInfo});
     });
