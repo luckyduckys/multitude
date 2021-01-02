@@ -82,7 +82,7 @@ function paginate(modelToPaginate, perPage, pageNumber) {
         modelToPaginate = modelToPaginate.skip(itemsToSkip).limit(perPage);
     }
 
-    return {totalPages: totalPages, perPage: perPage, pageNumber: pageNumber};
+    return ({totalPages: totalPages, perPage: perPage, pageNumber: pageNumber});
 }
 
 module.exports = {

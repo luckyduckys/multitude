@@ -100,6 +100,16 @@ function populateTable() {
         }
     }
 
+    if (typeof filter.perPage === 'undefined') {
+        if (url === "/api/vulnerabilities") {
+            url += "?perPage=25";
+        }
+
+        else {
+            url += "&perPage=25";
+        }
+    }
+
     $.get(url, function(data, status) {
         $(".loadingGif").addClass("hidden");
 

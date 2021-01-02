@@ -1,6 +1,7 @@
 const models = require("./schemas_and_models");
 const _ = require("lodash");
 const generalOps = require("./generalOps");
+const sanitize = require("mongo-sanitize");
 
 module.exports = function(app) {
 
@@ -215,7 +216,7 @@ module.exports = function(app) {
             }
         ]);
 
-        let entryCount = await models.Vulnerability.aggregate([
+        let entryCount = models.Vulnerability.aggregate([
             { $group: { 
                     _id: '$pluginId',
                     severity: { $first: '$severity' },
@@ -223,10 +224,8 @@ module.exports = function(app) {
                     pluginFamily: { $first: '$pluginFamily'},
                     instanceCount: { $sum: 1 },
               }
-            },
-
-            { $count: "entryCount"}
-        ]).exec();
+            }
+        ]);
 
         if (_.hasIn(req.query, "orderby")) {
 
@@ -238,7 +237,7 @@ module.exports = function(app) {
 
             switch (_.lowerCase(req.query.orderby)) {
                 case "severity":
-                    vulns = vulns.sort({severity: order});vulns.count("entryCount");
+                    vulns = vulns.sort({severity: order});
                     break;
                 
                 case "name":
@@ -258,6 +257,79 @@ module.exports = function(app) {
                     break;
             }   
         }
+
+        if (_.hasIn(req.query, "pluginName")) {
+            vulns = vulns.match({
+                    pluginName: {
+                        $regex: sanitize(req.query.pluginName), 
+                        $options: "i"
+                    }
+            });
+
+            entryCount = entryCount.match({
+                pluginName: {
+                    $regex: sanitize(req.query.pluginName), 
+                    $options: "i"
+                }
+            });
+        }
+
+        if (_.hasIn(req.query, "pluginFamily")) {
+            vulns = vulns.match({
+                pluginFamily: {
+                    $regex: sanitize(req.query.pluginFamily), 
+                    $options: "i"
+                }
+            });
+
+            entryCount = entryCount.match({
+                pluginFamily: {
+                    $regex: sanitize(req.query.pluginFamily), 
+                    $options: "i"
+                }
+            });
+
+        }
+
+        if (_.hasIn(req.query, "pluginId")) {
+            let num = _.toNumber(req.query.pluginId);
+
+            if (!isNaN(num)) {
+                vulns = vulns.match({
+                    pluginId: {
+                        $eq: num
+                    }
+                });
+    
+                entryCount = entryCount.match({
+                    pluginId: {
+                        $eq: num
+                    }
+                });
+            }
+        }
+
+        if (_.hasIn(req.query, "severity")) {
+            let num = _.toNumber(req.query.severity);
+
+            if (num >= 1 && num <= 4) {
+                vulns = vulns.match({
+                    severity: {
+                        $eq: num
+                    }
+                });
+    
+                entryCount = entryCount.match({
+                    severity: {
+                        $eq: num
+                    }
+                });
+            }
+        }
+
+        //Get counts after filtering
+        entryCount.count("entryCount");
+        entryCount = await entryCount.exec();
 
         if (_.hasIn(req.query, "perPage")) {
             perPage = Number(req.query.perPage);
@@ -290,6 +362,7 @@ module.exports = function(app) {
         }
 
         vulns = await vulns.exec();
+
         res.set('Content-Type', 'application/json');
         res.send({vulnerabilities: vulns, pageInfo: pageInfo});
     });
