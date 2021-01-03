@@ -55,13 +55,13 @@ function httpRequest(scanner, path, method, data = null, token = null) {
     });
 }
 
-function paginate(modelToPaginate, perPage, pageNumber) {
+async function paginate(modelToPaginate, perPage, pageNumber) {
     let totalObjects;
     let totalPages;
     let itemsToSkip;
+    let curFilter;
 
-    if (typeof perPage !== "number" || typeof pageNumber !== "number") {
-        console.log(typeof perPage);
+    if (isNaN(perPage) || isNaN(pageNumber)) {
         throw {error: "perPage and pageNumber must be a number greater than zero"};
     }
 
@@ -70,16 +70,35 @@ function paginate(modelToPaginate, perPage, pageNumber) {
     }
 
     else {
-        console.log(totalObjects);
-        totalObjects = modelToPaginate.estimatedDocumentCount();
-        totalPages = totalObjects / perPage;
+        
+        try {
+            curFilter = modelToPaginate.getFilter();
+            totalObjects = await modelToPaginate.estimatedDocumentCount()
+        }
+
+        catch (err) {
+            throw err;
+        }
+
+        modelToPaginate.find(curFilter);
+
+        totalPages = Math.ceil(totalObjects / perPage);
 
         if (pageNumber > totalPages) {
+            console.log(totalPages);
+            console.log(pageNumber);
             throw {error: "page number must be less than total number of pages"};
         }
 
-        itemsToSkip = pageNumber * perPage;
-        modelToPaginate = modelToPaginate.skip(itemsToSkip).limit(perPage);
+        itemsToSkip = (pageNumber - 1) * perPage;
+        
+        if (itemsToSkip > 0) {
+            modelToPaginate = modelToPaginate.skip(itemsToSkip).limit(perPage);
+        }
+
+        else {
+            modelToPaginate.limit(perPage);
+        }
     }
 
     return ({totalPages: totalPages, perPage: perPage, pageNumber: pageNumber});

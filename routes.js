@@ -159,6 +159,7 @@ module.exports = function(app) {
     app.get('/api/hosts', async function(req, res) {
         let hosts = models.Host.find({})
         let order = -1;
+        let pageInfo;
 
         if (_.hasIn(req.query, "orderby")) {
 
@@ -170,27 +171,43 @@ module.exports = function(app) {
 
             switch (_.lowerCase(req.query.orderby)) {
                 case 'fqdn':
-                    hosts = hosts.sort({fqdn: order});
+                    hosts = hosts.sort({fqdn: order, _id: 1});
                     break;
                 
                 case 'address':
-                    hosts = hosts.sort({ip: order});
+                    hosts = hosts.sort({ip: order, _id: 1});
                     break;
                 
                 case 'os':
-                    hosts = hosts.sort({os: order});
+                    hosts = hosts.sort({os: order, _id: 1});
                     break;
                 
                 default:
-                    hosts = hosts.sort({lastScan: order});
+                    hosts = hosts.sort({lastScan: order, _id: 1});
                     break;
-    
             }
         }
 
-        hosts = await hosts.exec()
+        console.log(req.query.perPage);
+        console.log(req.query.pageNumber);
+        try {
+            pageInfo = await generalOps.paginate(hosts, Number(req.query.perPage), Number(req.query.pageNumber));
+        }
+
+        catch (err) {
+
+            try {
+                pageInfo = await generalOps.paginate(hosts, 25, 1);
+            }
+
+            catch (e) {
+                console.log(e);
+            }
+        }
+
+        hosts = await hosts.exec();
         res.set('Content-Type', 'application/json');
-        res.send(hosts);
+        res.send({hosts: hosts, pageInfo: pageInfo});
     });
 
     app.get('/api/vulnerabilities', async function(req, res) {
