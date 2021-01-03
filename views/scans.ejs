@@ -9,7 +9,7 @@
             <div class="col-offset-1 mx-5">
                 <button class="btn btn-dark" data-toggle="modal" data-target="#filterScans">Filter</button>
                 <div class="modal fade" id="filterScans" tabindex="-1" role="dialog" aria-labelledby="filterScansTitle" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="filterScansTitle">Filter Scans</h5>
@@ -17,36 +17,30 @@
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <form id="filterScansForm" action="/api/scans" method="POST">
+                            <form id="filterScansForm" action="/api/scans" method="GET">
                                 <div class="modal-body">
                                     <div class="form-row">
                                         <div class="form-group col">
-                                            <label for="name">Name</label>
-                                            <input type="text" name="name" class="form-control">
+                                            <label for="name">Scan Name</label>
+                                            <input type="text" name="scanName" class="form-control">
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group col">
-                                            <label for="ipAddress">IP Address</label>
-                                            <input type="text" name="ipAddress" class="form-control">
+                                            <label for="ipAddress">Scanner Name</label>
+                                            <input type="text" name="scannerName" class="form-control">
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="form-group col-6">
-                                            <label for="username">Username</label>
-                                            <input type="text" name="username" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group col-6">
-                                            <label for="password">Password</label>
-                                            <input type="password" name="password" class="form-control">
+                                        <div class="form-group col">
+                                            <label for="perPage">Results per Page</label>
+                                            <input type="number" min="1" max="100" name="perPage" class="form-control">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-success">Create new</button>
+                                    <button type="submit" class="btn btn-success">Apply</button>
                                 </div>
                             </form>
                         </div>
@@ -78,5 +72,11 @@
             <tbody id="scansTableBody">
             </tbody>
         </table>
+    </div>
+    <div class="container mt-2-md mt-4-xs mr-2">
+        <nav>
+            <ul class="pagination justify-content-end hidden">
+            </ul>
+        </nav>
     </div>
 <%- include('partials/footer.ejs') -%>

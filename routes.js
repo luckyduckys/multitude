@@ -2,6 +2,7 @@ const models = require("./schemas_and_models");
 const _ = require("lodash");
 const generalOps = require("./generalOps");
 const hostOps = require("./hostOps");
+const scanOps = require("./scanOps");
 const sanitize = require("mongo-sanitize");
 
 module.exports = function(app) {
@@ -123,6 +124,7 @@ module.exports = function(app) {
     app.get('/api/scans', async function(req, res) {
         let scans = models.Scan.find({})
         let order = -1;
+        let pageInfo;
 
         if (_.hasIn(req.query, "orderby")) {
 
@@ -152,9 +154,19 @@ module.exports = function(app) {
             }
         }
 
+        await scanOps.filterScans(scans, req.query);
+
+        try {
+            pageInfo = await generalOps.paginate(scans, Number(req.query.perPage), !isNaN(Number(req.query.pageNumber)) ? Number(req.query.pageNumber) : 1);
+        }
+
+        catch (err) {
+            console.log(err);
+        }
+
         scans = await scans.exec()
         res.set('Content-Type', 'application/json');
-        res.send(scans);
+        res.send({scans: scans, pageInfo: pageInfo});
     });
 
     app.get('/api/hosts', async function(req, res) {
