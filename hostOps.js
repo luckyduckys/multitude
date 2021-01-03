@@ -1,5 +1,6 @@
 const models = require("./schemas_and_models");
 const _ = require("lodash");
+const sanitize = require("mongo-sanitize");
 
 async function doesHostExist (nessus_host = {}) {
     let count = 0;
@@ -85,8 +86,40 @@ async function updateHost (hostToUpdate, nessus_host, scan_id, host_id) {
     }
 }
 
+function filterHosts (hostsQuery, userQuery) {
+    let curFilter;
+
+    if (_.hasIn(userQuery, "fqdn")) {
+        curFilter = hostsQuery.getFilter();
+        curFilter.fqdn = {
+            $regex: sanitize(userQuery.fqdn),
+            $options: "i"
+        }
+        hostsQuery = hostsQuery.find(curFilter);
+    }
+
+    if (_.hasIn(userQuery, "ipAddress")) {
+        curFilter = hostsQuery.getFilter();
+        curFilter.ip = {
+            $regex: sanitize(userQuery.ipAddress),
+            $options: "i"
+        }
+        hostsQuery = hostsQuery.find(curFilter);
+    }
+
+    if (_.hasIn(userQuery, "os")) {
+        curFilter = hostsQuery.getFilter();
+        curFilter.os = {
+            $regex: sanitize(userQuery.os),
+            $options: "i"
+        }
+        hostsQuery = hostsQuery.find(curFilter);
+    }
+}
+
 module.exports = {
     doesHostExist,
     createHost,
-    updateHost
+    updateHost,
+    filterHosts
 }

@@ -51,7 +51,6 @@ $("#filterHostsForm").submit(async function(event) {
         }
     });
 
-    console.log(filter);
     filter.pageNumber = 1;
     populateTable();
 });

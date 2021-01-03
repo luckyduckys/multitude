@@ -1,6 +1,7 @@
 const models = require("./schemas_and_models");
 const _ = require("lodash");
 const generalOps = require("./generalOps");
+const hostOps = require("./hostOps");
 const sanitize = require("mongo-sanitize");
 
 module.exports = function(app) {
@@ -188,21 +189,18 @@ module.exports = function(app) {
             }
         }
 
-        console.log(req.query.perPage);
-        console.log(req.query.pageNumber);
+        else {
+            hosts.sort({_id: 1});
+        }
+
+        await hostOps.filterHosts(hosts, req.query);
+    
         try {
-            pageInfo = await generalOps.paginate(hosts, Number(req.query.perPage), Number(req.query.pageNumber));
+            pageInfo = await generalOps.paginate(hosts, Number(req.query.perPage), !isNaN(Number(req.query.pageNumber)) ? Number(req.query.pageNumber) : 1);
         }
 
         catch (err) {
-
-            try {
-                pageInfo = await generalOps.paginate(hosts, 25, 1);
-            }
-
-            catch (e) {
-                console.log(e);
-            }
+            console.log(err);
         }
 
         hosts = await hosts.exec();
