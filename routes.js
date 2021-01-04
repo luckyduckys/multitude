@@ -6,15 +6,20 @@ const scanOps = require("./scanOps");
 const scannerOps = require("./scannerOps");
 const sanitize = require("mongo-sanitize");
 
-module.exports = function(app) {
+module.exports = function(app, passport) {
 
     app.get('/', function(req, res) {
         res.render('index.ejs', {title: 'index'});
     });
     
     app.get('/login', function(req, res) {
-        res.render('login.ejs', {});
+        res.render('login.ejs', {message: req.flash('error')});
     });
+
+    app.post('/login', passport.authenticate('local', { successRedirect: '/',
+                                                        failureRedirect: '/login',
+                                                        failureFlash: "Invalid username or password"})
+    );
     
     app.get('/vulnerabilities', function(req, res) {
         res.render('vulnerabilities.ejs', {title: 'vulnerabilities'});

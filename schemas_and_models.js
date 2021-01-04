@@ -72,6 +72,16 @@ const hostSchema = new mongoose.Schema({
     scan_id: String
 });
 
+const userSchema = new mongoose.Schema({
+    email: String,
+    username: {
+        type: String,
+        required: true
+    },
+
+    password: String
+});
+
 scannerSchema.plugin(encryption, {
     encryptionKey: process.env.ENC_KEY,
     signingKey: process.env.SIG_KEY,
@@ -82,10 +92,12 @@ const Vulnerability = new mongoose.model('vulnerability', vulnerabilitySchema, '
 const Scanner = new mongoose.model('scanner', scannerSchema);
 const Scan = new mongoose.model('scan', scanSchema);
 const Host = new mongoose.model('host', hostSchema);
+const User = new mongoose.model('user', userSchema);
 
 module.exports = {
     Vulnerability,
     Scanner,
     Scan,
-    Host
+    Host,
+    User
 }
