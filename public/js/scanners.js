@@ -1,3 +1,4 @@
+let filter = {}
 $(document).ready(populateTable());
 
 $('#createNewScannerForm').submit(function (event) {
@@ -27,7 +28,6 @@ $('#scannerTableBody').on('submit', '.delete-scanner', function(event) {
 
 $("th > span.text-nowrap").click(function() {
     let arrowClasses = $(this).children().attr("class").split(/\s+/);
-    let filter = {}
 
     $("th > span.text-nowrap > span").removeClass("fa-sort-down");
     $("th > span.text-nowrap > span").removeClass("fa-sort-up");
@@ -59,43 +59,123 @@ $("th > span.text-nowrap").click(function() {
     populateTable(filter);
 });
 
-function populateTable(filter = null) {
+$("#filterScannersForm").submit(async function(event) {
+    let keys;
+    let formData = $("#filterScannersForm").serializeArray()
+
+    event.preventDefault();
+    
+    formData.forEach(function(item) {
+        filter[item.name] = item.value;
+    });
+
+    keys = Object.keys(filter);
+    keys.forEach(function(key) {
+
+        if (filter[key] === "") {
+            delete filter[key];
+        }
+    });
+
+    filter.pageNumber = 1;
+    await populateTable();
+});
+
+async function populateTable() {
     $("#scannerTableBody").empty();
     $("#scannerTable").addClass("hidden");
     $(".loadingGif").removeClass("hidden");
 
-    setTimeout(function() {
+    let url = "/api/scanners";
 
-        let url = "/api/scanners";
+    let keys = Object.keys(filter);
+    let data;
 
-        if (filter != null) {
-            url += "?order=" + filter.order + "&orderby=" + filter.orderby;
+    for (let i = 0; i < keys.length; i++) {
+        if (i === 0) {
+            url += "?" + keys[i] + "=" + filter[keys[i]];
         }
 
-        $.get(url, function(data, status) {
+        else {
+            url += "&" + keys[i] + "=" + filter[keys[i]];
+        }
+    }
 
-            $(".loadingGif").addClass("hidden");
+    if (typeof filter.perPage === 'undefined') {
+        if (url === "/api/scanners") {
+            url += "?perPage=25";
+        }
 
-            if (data.length > 0) {
+        else {
+            url += "&perPage=25";
+        }
+    }
 
-                $("#scannerTable").removeClass("hidden");
-                
-                data.forEach(function (scanner) {
-                    $("#scannerTableBody").append('<tr>');
-                    $("#scannerTableBody").append('<td><span class="text-nowrap">' + scanner.name + '</span></td>');
-                    $("#scannerTableBody").append('<td><span class="text-nowrap">' + scanner.ip + '</span></td>');
-                    $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.status || '') + '</span></td>');
-                    $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.version || '') + '</span></td>');
-                    $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.type || '') + '</span></td>');
-                    $("#scannerTableBody").append('<td><span class="text-nowrap"><form class="delete-scanner" action="/api/scanners/' + scanner._id + 
-                        '" method="POST"><button type="submit" class="btn btn-danger">Delete</button></form></span></td>');
-                    $("#scannerTableBody").append('</tr>');
-                });
-            }
-        });
-    },
-    1000);
+    data = await $.get(url, function(data, status) {
+
+        $(".loadingGif").addClass("hidden");
+
+        if (data.scanners.length > 0) {
+
+            $("#scannerTable").removeClass("hidden");
+            
+            data.scanners.forEach(function (scanner) {
+                $("#scannerTableBody").append('<tr>');
+                $("#scannerTableBody").append('<td><span class="text-nowrap">' + scanner.name + '</span></td>');
+                $("#scannerTableBody").append('<td><span class="text-nowrap">' + scanner.ip + '</span></td>');
+                $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.status || 'pending') + '</span></td>');
+                $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.version || '') + '</span></td>');
+                $("#scannerTableBody").append('<td><span class="text-nowrap">' + (scanner.type || '') + '</span></td>');
+                $("#scannerTableBody").append('<td><span class="text-nowrap"><form class="delete-scanner" action="/api/scanners/' + scanner._id + 
+                    '" method="POST"><button type="submit" class="btn btn-danger">Delete</button></form></span></td>');
+                $("#scannerTableBody").append('</tr>');
+            });
+            
+            createPagination(data.pageInfo);
+        }
+    });
 
     $("#addNewScanner").modal('hide');
     $("#addNewScanner input").val('');
+    $("#filterScanners").modal('hide');
+}
+
+function createPagination(pageInfo) {
+    let pagesBefore = ((pageInfo.pageNumber - 1 ) % 5);
+    let pagesAfter = 5 - pagesBefore - 1;
+
+    $(".pagination").removeClass("hidden");
+    $(".pagination").empty();
+
+    if (pageInfo.pageNumber === 1) {
+        $(".pagination").append('<li class="page-item disabled"><a class="page-link" tabindex="-1">Previous</a></li>');
+    }
+
+    else {
+        $(".pagination").append('<li class="page-item"><a class="page-link" tabindex="-1">Previous</a></li>');
+    }
+
+    for (let i = pagesBefore; i > 0; i--) {
+        $(".pagination").append('<li class="page-item"><a class="page-link" >' + (pageInfo.pageNumber - i));
+    }
+
+    $(".pagination").append('<li class="page-item active"><a class="page-link" >' + pageInfo.pageNumber)
+    
+    for (let i = 1; i <= pagesAfter; i++) {
+        if (pageInfo.pageNumber + i <= pageInfo.totalPages) {
+            $(".pagination").append('<li class="page-item"><a class="page-link" >' + (pageInfo.pageNumber + i));
+        }
+
+        else {
+            break;
+        }
+    }
+
+    if (pageInfo.pageNumber === pageInfo.totalPages) {
+        $(".pagination").append('<li class="page-item disabled"><a class="page-link" >Next</a></li>');
+    }
+
+    else {
+        $(".pagination").append('<li class="page-item"><a class="page-link" >Next</a></li>');
+    }
 }

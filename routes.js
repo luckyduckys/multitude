@@ -3,6 +3,7 @@ const _ = require("lodash");
 const generalOps = require("./generalOps");
 const hostOps = require("./hostOps");
 const scanOps = require("./scanOps");
+const scannerOps = require("./scannerOps");
 const sanitize = require("mongo-sanitize");
 
 module.exports = function(app) {
@@ -45,6 +46,7 @@ module.exports = function(app) {
     app.get('/api/scanners', async function(req,res) {
         let scanners = models.Scanner.find({})
         let order = -1;
+        let pageInfo;
 
         if (_.hasIn(req.query, "orderby")) {
 
@@ -78,9 +80,19 @@ module.exports = function(app) {
             }
         }
 
+        await scannerOps.filterScanners(scanners, req.query);
+
+        try {
+            pageInfo = await generalOps.paginate(scanners, Number(req.query.perPage), !isNaN(Number(req.query.pageNumber)) ? Number(req.query.pageNumber) : 1);
+        }
+
+        catch (err) {
+            console.log(err);
+        }
+
         scanners = await scanners.exec()
         res.set('Content-Type', 'application/json');
-        res.send(scanners);
+        res.send({scanners: scanners, pageInfo: pageInfo});
     });
 
     app.post('/api/scanners', function(req,res) {
