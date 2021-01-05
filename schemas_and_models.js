@@ -1,6 +1,7 @@
 require('dotenv').config();
 const mongoose = require("mongoose");
 const encryption = require("mongoose-encryption");
+const bcrypt = require("bcrypt");
 
 const vulnerabilitySchema = new mongoose.Schema({
     severity: {
@@ -73,13 +74,18 @@ const hostSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
+    firstName: String,
+    lastName: String,
     email: String,
     username: {
         type: String,
         required: true
     },
 
-    password: String
+    password: {
+        type: String,
+        required: true
+    }
 });
 
 scannerSchema.plugin(encryption, {
@@ -87,6 +93,35 @@ scannerSchema.plugin(encryption, {
     signingKey: process.env.SIG_KEY,
     encryptedFields: ['username', 'password']
 });
+
+userSchema.pre('save', function(next) {
+
+    if (!user.isModified('password')) {
+        return next();
+    }
+
+    bcrypt.hash(user.password, process.env.SALT_ROUNDS, function(err, hash) {
+
+        if (err) {
+            return next(err);
+        }         
+
+        user.password = hash;
+        next();
+    });
+});
+
+userSchema.methods.comparePassword = function(candidatePassword, cb) {
+
+    bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
+
+        if (err) {
+            return cb(err);
+        }
+
+        cb(null, isMatch);
+    });
+}
 
 const Vulnerability = new mongoose.model('vulnerability', vulnerabilitySchema, 'vulnerabilities');
 const Scanner = new mongoose.model('scanner', scannerSchema);

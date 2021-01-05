@@ -13,7 +13,7 @@ module.exports = function(app, passport) {
     });
     
     app.get('/login', function(req, res) {
-        res.render('login.ejs', {message: req.flash('error')});
+        res.render('login.ejs', {message: req.flash('error'), title: "login"});
     });
 
     app.post('/login', passport.authenticate('local', { successRedirect: '/',
@@ -46,6 +46,72 @@ module.exports = function(app, passport) {
     
     app.get('/manage/scans', function(req,res) {
         res.render('scans.ejs', {title: 'scans'});
+    });
+
+    app.get('/api/chart/totals', async function(req, res) {
+        let counts = await models.Vulnerability.aggregate([
+            { $group: {
+                _id: '$severity',
+                severityCount: { $sum: 1}
+            }},
+
+            { $sort: {
+                _id: -1
+            }},
+        ]).exec();
+
+        res.send(counts);
+    });
+
+    app.get('/api/hosts', async function(req, res) {
+        let hosts = models.Host.find({})
+        let order = -1;
+        let pageInfo;
+
+        if (_.hasIn(req.query, "orderby")) {
+
+            if (_.hasIn(req.query, "order")) {
+                if (_.lowerCase(req.query.order) === "ascending") {
+                    order = 1;
+                }
+            }
+
+            switch (_.lowerCase(req.query.orderby)) {
+                case 'fqdn':
+                    hosts = hosts.sort({fqdn: order, _id: 1});
+                    break;
+                
+                case 'address':
+                    hosts = hosts.sort({ip: order, _id: 1});
+                    break;
+                
+                case 'os':
+                    hosts = hosts.sort({os: order, _id: 1});
+                    break;
+                
+                default:
+                    hosts = hosts.sort({lastScan: order, _id: 1});
+                    break;
+            }
+        }
+
+        else {
+            hosts.sort({_id: 1});
+        }
+
+        await hostOps.filterHosts(hosts, req.query);
+    
+        try {
+            pageInfo = await generalOps.paginate(hosts, Number(req.query.perPage), !isNaN(Number(req.query.pageNumber)) ? Number(req.query.pageNumber) : 1);
+        }
+
+        catch (err) {
+            console.log(err);
+        }
+
+        hosts = await hosts.exec();
+        res.set('Content-Type', 'application/json');
+        res.send({hosts: hosts, pageInfo: pageInfo});
     });
 
     app.get('/api/scanners', async function(req,res) {
@@ -186,56 +252,11 @@ module.exports = function(app, passport) {
         res.send({scans: scans, pageInfo: pageInfo});
     });
 
-    app.get('/api/hosts', async function(req, res) {
-        let hosts = models.Host.find({})
-        let order = -1;
-        let pageInfo;
+    app.get('/api/users', async function(req, res) {
+        let users = models.Users.find({}, ['_id', 'username', 'email', 'firstName', 'lastName']);
 
-        if (_.hasIn(req.query, "orderby")) {
-
-            if (_.hasIn(req.query, "order")) {
-                if (_.lowerCase(req.query.order) === "ascending") {
-                    order = 1;
-                }
-            }
-
-            switch (_.lowerCase(req.query.orderby)) {
-                case 'fqdn':
-                    hosts = hosts.sort({fqdn: order, _id: 1});
-                    break;
-                
-                case 'address':
-                    hosts = hosts.sort({ip: order, _id: 1});
-                    break;
-                
-                case 'os':
-                    hosts = hosts.sort({os: order, _id: 1});
-                    break;
-                
-                default:
-                    hosts = hosts.sort({lastScan: order, _id: 1});
-                    break;
-            }
-        }
-
-        else {
-            hosts.sort({_id: 1});
-        }
-
-        await hostOps.filterHosts(hosts, req.query);
-    
-        try {
-            pageInfo = await generalOps.paginate(hosts, Number(req.query.perPage), !isNaN(Number(req.query.pageNumber)) ? Number(req.query.pageNumber) : 1);
-        }
-
-        catch (err) {
-            console.log(err);
-        }
-
-        hosts = await hosts.exec();
-        res.set('Content-Type', 'application/json');
-        res.send({hosts: hosts, pageInfo: pageInfo});
-    });
+        res.send({users: users});
+    })
 
     app.get('/api/vulnerabilities', async function(req, res) {
 
@@ -415,19 +436,4 @@ module.exports = function(app, passport) {
         res.set('Content-Type', 'application/json');
         res.send({vulnerabilities: vulns, pageInfo: pageInfo});
     });
-
-    app.get('/api/chart/totals', async function(req, res) {
-        let counts = await models.Vulnerability.aggregate([
-            { $group: {
-                _id: '$severity',
-                severityCount: { $sum: 1}
-            }},
-
-            { $sort: {
-                _id: -1
-            }},
-        ]).exec();
-
-        res.send(counts);
-    })
 }
